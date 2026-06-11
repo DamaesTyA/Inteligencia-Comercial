@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SIM TYA — Resultados Pruebas Funcionales v1</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --pass: #10b981; --pass-light: #d1fae5; --pass-text: #065f46;
+    --partial: #f59e0b; --partial-light: #fef3c7; --partial-text: #78350f;
+    --fail: #ef4444; --fail-light: #fee2e2; --fail-text: #7f1d1d;
+    --blue: #2563eb; --blue-light: #dbeafe; --blue-text: #1e3a8a;
+    --purple: #7c3aed; --purple-light: #ede9fe;
+    --slate-900: #0f172a; --slate-700: #334155; --slate-500: #64748b;
+    --slate-300: #cbd5e1; --slate-200: #e2e8f0; --slate-100: #f1f5f9; --slate-50: #f8fafc;
+    --radius-sm: 6px; --radius-md: 10px; --radius-lg: 14px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,.07);
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--slate-100);
+    color: var(--slate-700);
+    line-height: 1.6;
+    font-size: 14px;
+  }
+
+  /* ── LAYOUT ── */
+  .page { max-width: 900px; margin: 0 auto; padding: 32px 20px 80px; }
+
+  /* ── HEADER ── */
+  .header { margin-bottom: 28px; }
+  .header-top { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 6px; }
+  .eyebrow { font-size: 11px; font-weight: 700; color: var(--slate-300); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 5px; }
+  .headline { font-family: 'DM Serif Display', serif; font-size: 30px; font-weight: 400; color: var(--slate-900); line-height: 1.2; margin-bottom: 5px; }
+  .subhead { font-size: 13px; color: var(--slate-500); }
+  .badges { display: flex; gap: 6px; flex-wrap: wrap; align-items: flex-start; padding-top: 4px; }
+  .pill { border-radius: var(--radius-sm); padding: 4px 12px; font-size: 11px; font-weight: 700; }
+  .pill-amber { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+  .pill-green { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+  .pill-red { background: var(--fail-light); color: var(--fail-text); border: 1px solid #fca5a5; }
+  .pill-blue { background: var(--blue-light); color: var(--blue-text); border: 1px solid #93c5fd; }
+  .pill-purple { background: var(--purple-light); color: #5b21b6; border: 1px solid #c4b5fd; }
+  .pill-slate { background: var(--slate-100); color: var(--slate-500); border: 1px solid var(--slate-200); }
+
+  /* ── TABS ── */
+  .tab-bar { display: flex; gap: 6px; margin-bottom: 22px; overflow-x: auto; padding-bottom: 3px; scrollbar-width: none; }
+  .tab-bar::-webkit-scrollbar { display: none; }
+  .tab-btn { padding: 7px 18px; border-radius: 22px; font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; border: 1px solid var(--slate-200); background: #fff; color: var(--slate-500); transition: all .15s; display: flex; align-items: center; gap: 6px; }
+  .tab-btn:hover { border-color: var(--slate-300); color: var(--slate-700); }
+  .tab-btn.active { background: var(--slate-900); color: #fff; border-color: var(--slate-900); font-weight: 700; }
+  .tab-badge { font-size: 11px; font-weight: 800; border-radius: 10px; padding: 0 7px; background: rgba(255,255,255,.2); }
+  .tab-btn:not(.active) .tab-badge { background: var(--fail-light); color: var(--fail); }
+
+  /* ── CARDS ── */
+  .card { background: #fff; border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow-sm); }
+  .card + .card, .card + .kpi-grid, .kpi-grid + .card { margin-top: 14px; }
+  .card-label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 14px; }
+
+  /* ── KPI GRID ── */
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .kpi { background: #fff; border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 14px 16px; border-top: 3px solid var(--slate-300); box-shadow: var(--shadow-sm); }
+  .kpi-label { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
+  .kpi-value { font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 3px; }
+  .kpi-sub { font-size: 11px; color: #94a3b8; }
+
+  /* ── PROGRESS BAR ── */
+  .bar-wrap { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--slate-200); flex: 1; }
+  .bar-pass { background: var(--pass); }
+  .bar-partial { background: var(--partial); }
+  .bar-fail { background: var(--fail); }
+
+  /* ── EVALUADORES ── */
+  .ev-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+  .ev-card { display: flex; align-items: center; gap: 10px; background: var(--slate-50); border-radius: var(--radius-md); padding: 10px 12px; }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; flex-shrink: 0; }
+  .ev-info { flex: 1; min-width: 0; }
+  .ev-name { font-size: 13px; font-weight: 700; color: var(--slate-900); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ev-area { font-size: 11px; color: #94a3b8; margin-bottom: 5px; }
+  .ev-bar-row { display: flex; align-items: center; gap: 6px; }
+  .ev-pct { font-size: 11px; font-weight: 700; white-space: nowrap; }
+
+  /* ── SECCIONES ── */
+  .seccion-row { margin-bottom: 14px; }
+  .seccion-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; flex-wrap: wrap; gap: 4px; }
+  .seccion-id { font-size: 12px; color: #94a3b8; margin-right: 8px; }
+  .seccion-nombre { font-size: 13px; font-weight: 500; color: var(--slate-900); }
+  .seccion-nums { font-size: 12px; }
+
+  /* ── EXPANDIBLE (BUGS / US) ── */
+  .item-card { background: #fff; border: 1px solid var(--slate-200); border-radius: var(--radius-md); margin-bottom: 8px; overflow: hidden; box-shadow: var(--shadow-sm); cursor: pointer; transition: box-shadow .15s; border-left-width: 4px; }
+  .item-card:hover { box-shadow: var(--shadow-md); }
+  .item-header { padding: 13px 16px; display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .item-title { font-size: 13px; font-weight: 700; color: var(--slate-900); margin-bottom: 5px; }
+  .item-tags { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .tag { font-size: 11px; border-radius: 5px; padding: 2px 8px; font-weight: 600; }
+  .tag-section { background: var(--slate-100); color: var(--slate-500); }
+  .tag-votos { background: var(--purple-light); color: #5b21b6; }
+  .tag-area { background: var(--blue-light); color: var(--blue-text); }
+  .chevron { color: #94a3b8; font-size: 14px; transition: transform .2s; flex-shrink: 0; margin-top: 2px; }
+  .chevron.open { transform: rotate(180deg); }
+  .item-body { padding: 0 16px 14px; border-top: 1px solid var(--slate-100); display: none; }
+  .item-body.open { display: block; }
+  .item-desc { font-size: 13px; color: var(--slate-500); line-height: 1.7; margin-bottom: 6px; padding-top: 10px; }
+  .item-meta { font-size: 12px; color: #94a3b8; }
+  .us-box { background: var(--slate-50); border-radius: var(--radius-sm); padding: 12px 14px; margin-top: 10px; }
+  .us-box p { font-size: 13px; color: var(--slate-500); margin-bottom: 4px; }
+  .us-box p:last-child { margin-bottom: 0; }
+  .us-box strong { color: var(--slate-900); }
+
+  /* ── SATISFACCIÓN ── */
+  .rating-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--slate-100); flex-wrap: wrap; gap: 6px; }
+  .rating-row:last-child { border-bottom: none; }
+  .stars { display: flex; align-items: center; gap: 2px; }
+  .star { font-size: 14px; }
+  .rating-num { font-size: 13px; font-weight: 700; color: var(--slate-900); margin-left: 6px; }
+  .sat-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .sat-table th { text-align: left; padding: 6px 8px; color: #94a3b8; font-weight: 700; border-bottom: 1px solid var(--slate-200); }
+  .sat-table td { padding: 7px 8px; border-bottom: 1px solid var(--slate-100); }
+  .sat-table tr:last-child td { border-bottom: none; }
+  .num-cell { text-align: center; font-weight: 700; }
+  .comment-card { background: var(--slate-50); border-radius: var(--radius-md); padding: 13px 16px; margin-bottom: 10px; }
+  .comment-text { font-size: 13px; color: var(--slate-700); line-height: 1.7; font-style: italic; margin-bottom: 8px; }
+  .comment-author { display: flex; align-items: center; gap: 8px; }
+  .comment-name { font-size: 12px; font-weight: 700; color: var(--slate-900); }
+  .comment-area { font-size: 11px; color: #94a3b8; }
+
+  /* ── LEGEND ── */
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--slate-500); }
+  .legend-sq { width: 10px; height: 10px; border-radius: 2px; }
+
+  /* ── FILTERS ── */
+  .filter-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .filter-btn { padding: 5px 13px; border-radius: 20px; font-family: inherit; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid var(--slate-200); background: #fff; color: var(--slate-500); transition: all .15s; }
+  .filter-btn:hover { border-color: var(--slate-300); }
+  .filter-btn.active { background: var(--slate-900); color: #fff; border-color: var(--slate-900); font-weight: 700; }
+
+  /* ── SELECTOR EVALUADOR ── */
+  .ev-selector { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .ev-btn { padding: 5px 13px; border-radius: 20px; font-family: inherit; font-size: 12px; cursor: pointer; border: 1px solid var(--slate-200); background: #fff; color: var(--slate-500); transition: all .15s; font-weight: 500; }
+  .ev-btn.active { background: var(--slate-900); color: #fff; border-color: var(--slate-900); font-weight: 700; }
+
+  /* ── CALLOUT ── */
+  .callout { background: #f0f9ff; border: 1px solid #bae6fd; border-left: 4px solid #0284c7; border-radius: var(--radius-md); padding: 14px 18px; }
+  .callout-text { font-size: 14px; color: #0c4a6e; font-style: italic; line-height: 1.7; margin-bottom: 8px; }
+  .callout-author { font-size: 12px; font-weight: 700; color: #0369a1; }
+  .callout-warn { background: #fff7ed; border: 1px solid #fed7aa; border-left: 4px solid #f97316; border-radius: var(--radius-md); padding: 13px 16px; }
+  .callout-warn strong { color: #9a3412; font-size: 13px; display: block; margin-bottom: 4px; }
+  .callout-warn p { font-size: 13px; color: #7c2d12; line-height: 1.6; }
+
+  /* ── FOOTER ── */
+  .footer { text-align: center; font-size: 11px; color: var(--slate-300); margin-top: 40px; }
+
+  /* ── HIDDEN TABS ── */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── UTILITY ── */
+  .divider { border: none; border-top: 1px solid var(--slate-100); margin: 12px 0; }
+  .count-label { font-size: 12px; color: #94a3b8; margin-bottom: 12px; }
+
+  @media (max-width: 520px) {
+    .headline { font-size: 22px; }
+    .kpi-value { font-size: 22px; }
+    .header-top { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <p class="eyebrow">SIM TYA · v1 · Mayo–Junio 2026</p>
+        <h1 class="headline">Resultados de Pruebas Funcionales</h1>
+        <p class="subhead">7 usuarios de negocio · Proyectos Activos + Análisis de Mercado</p>
+      </div>
+      <div class="badges">
+        <span class="pill pill-amber">Beta v1</span>
+        <span class="pill pill-green">Aprobación prom. ~82%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab(0)">Resumen</button>
+    <button class="tab-btn" onclick="switchTab(1)">Por sección</button>
+    <button class="tab-btn" onclick="switchTab(2)">Bugs <span class="tab-badge">4 Alta</span></button>
+    <button class="tab-btn" onclick="switchTab(3)">Historias de usuario <span class="tab-badge">10</span></button>
+    <button class="tab-btn" onclick="switchTab(4)">Satisfacción</button>
+  </div>
+
+  <!-- TAB 0: RESUMEN -->
+  <div class="tab-panel active" id="panel-0">
+    <div class="kpi-grid">
+      <div class="kpi" style="border-top-color:#2563eb">
+        <p class="kpi-label">Evaluadores</p>
+        <p class="kpi-value" style="color:#2563eb">7</p>
+        <p class="kpi-sub">usuarios de negocio</p>
+      </div>
+      <div class="kpi" style="border-top-color:#475569">
+        <p class="kpi-label">Escenarios / form.</p>
+        <p class="kpi-value" style="color:#475569">35</p>
+        <p class="kpi-sub">en 7 secciones</p>
+      </div>
+      <div class="kpi" style="border-top-color:#10b981">
+        <p class="kpi-label">✅ Pasan (total)</p>
+        <p class="kpi-value" style="color:#10b981">201</p>
+        <p class="kpi-sub">~82% del total</p>
+      </div>
+      <div class="kpi" style="border-top-color:#f59e0b">
+        <p class="kpi-label">⚠️ Parciales</p>
+        <p class="kpi-value" style="color:#f59e0b">19</p>
+        <p class="kpi-sub">con mejoras</p>
+      </div>
+      <div class="kpi" style="border-top-color:#ef4444">
+        <p class="kpi-label">❌ Fallan</p>
+        <p class="kpi-value" style="color:#ef4444">22</p>
+        <p class="kpi-sub">bugs detectados</p>
+      </div>
+      <div class="kpi" style="border-top-color:#7c3aed">
+        <p class="kpi-label">Impacto negocio</p>
+        <p class="kpi-value" style="color:#7c3aed">5/5</p>
+        <p class="kpi-sub">prom. evaluadores</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="card-label">Participantes</p>
+      <div class="ev-grid">
+        <div class="ev-card">
+          <div class="avatar" style="background:#dbeafe;color:#2563eb">IR</div>
+          <div class="ev-info">
+            <p class="ev-name">Iván Rosales</p>
+            <p class="ev-area">Finanzas · 03/06/2026</p>
+            <div class="ev-bar-row">
+              <div class="bar-wrap"><div class="bar-pass" style="width:77%"></div><div class="bar-partial" style="width:20%"></div><div class="bar-fail" style="width:3%"></div></div>
+              <span class="ev-pct" style="color:#10b981">77%</span>
+            </div>
+          </div>
+        </div>
+        <div class="ev-card">
+          <div class="avatar" style="background:#ccfbf1;color:#0f766e">JP</div>
+          <div class="ev-info">
+            <p class="ev-name">José Luis Pérez</p>
+            <p class="ev-area">Comercial QRO · 27/05/2026</p>
+            <div class="ev-bar-row">
+              <div class="bar-wrap"><div class="bar-pass" style="width:95%"></div><div class="bar-fail" style="width:5%"></div></div>
+              <span class="ev-pct" style="color:#10b981">95%</span>
+            </div>
+          </div>
+        </div>
+        <div class="ev-card">
+          <div class="avatar" style="background:#fef3c7;color:#d97706">EM</div>
+          <div class="ev-info">
+            <p class="ev-name">Eduardo Mendieta</p>
+            <p class="ev-area">Usos Mixtos · 03/06/2026</p>
+            <div class="ev-bar-row">
+              <div class="bar-wrap"><div class="bar-pass" style="width:80%"></div><div class="bar-partial" style="width:3%"></div><div class="bar-fail" style="width:6%"></div></div>
+              <span class="ev-pct" style="color:#10b981">80%</span>
+            </div>
+          </div>
+        </div>
+        <div class="ev-card">
+          <div class="avatar" style="background:#fee2e2;color:#dc2626">EV</div>
+          <div class="ev-info">
+            <p class="ev-name">Eduardo Vega</p>
+            <p class="ev-area">Div. Residencial · 03/06/2026</p>
+            <div class="ev-bar-row">
+              <div class="bar-wrap"><div class="bar-pass" style="width:60%"></div><div class="bar-partial" style="width:20%"></div><div class="bar-fail" style="width:20%"></div></div>
+              <span class="ev-pct" style="color:#f59e0b">60%</span>
+            </div>
+          </div>
+        </div>
+        <div class="ev-card">
+          <div class="avatar" style="background:#ede9fe;color:#7c3aed">HC</div>
+          <div class="ev-info">
+            <p class="ev-name">Héctor Castro</p>
+            <p class="ev-area">Turismo · 11/06/2026</p>
+            <div class="ev-bar-row">
+              <div class="bar-wrap"><div class="bar-pass" style="width:89%"></div><div class="bar-partial" style="width:3%"></div><div class="bar-fail" style="width:6%"></div></div>
+              <span class="ev-pct" style="color:#10b981">89%</span>
+            </div>
+          </div>
+        </div>
+        <div class="ev-card">
+          <div class="avatar" style="background:#e0f2fe;color:#0369a1">RN</div>
+          <div class="ev-info">
+            <p class="ev-name">Rodrigo Nieto</p>
+            <p class="ev-area">Dir. Operaciones Res. · 09/06/2026</p>
+            <div class="ev-bar-row">
+              <div class="bar-wrap"><div class="bar-pass" style="width:94%"></div><div class="bar-partial" style="width:6%"></div></div>
+              <span class="ev-pct" style="color:#10b981">94%</span>
+            </div>
+          </div>
+        </div>
+        <div class="ev-card">
+          <div class="avatar" style="background:#d1fae5;color:#059669">RM</div>
+          <div class="ev-info">
+            <p class="ev-name">Roberto Meléndez</p>
+            <p class="ev-area">Comercial · 08/06/2026</p>
+            <div class="ev-bar-row">
+              <div class="bar-wrap"><div class="bar-pass" style="width:91%"></div><div class="bar-partial" style="width:6%"></div><div class="bar-fail" style="width:3%"></div></div>
+              <span class="ev-pct" style="color:#10b981">91%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:14px">
+      <p class="callout-text">"La plataforma es intuitiva y ofrece información muy relevante para la toma de decisiones. El mapa interactivo y los indicadores de mercado son especialmente valiosos para el área de operaciones."</p>
+      <p class="callout-author">— Rodrigo Nieto, Dir. Operaciones Residencial · 33/35 ✅</p>
+    </div>
+  </div>
+
+  <!-- TAB 1: POR SECCIÓN -->
+  <div class="tab-panel" id="panel-1">
+    <div class="ev-selector" id="ev-selector">
+      <button class="ev-btn active" onclick="selectEv('avg', this)">Promedio</button>
+      <button class="ev-btn" onclick="selectEv('ivan', this)">I. Rosales</button>
+      <button class="ev-btn" onclick="selectEv('mendieta', this)">E. Mendieta</button>
+      <button class="ev-btn" onclick="selectEv('vega', this)">E. Vega</button>
+      <button class="ev-btn" onclick="selectEv('hector', this)">H. Castro</button>
+      <button class="ev-btn" onclick="selectEv('rodrigo', this)">R. Nieto</button>
+      <button class="ev-btn" onclick="selectEv('roberto', this)">R. Meléndez</button>
+    </div>
+
+    <div class="card">
+      <div class="legend">
+        <span class="legend-item"><span class="legend-sq" style="background:#10b981"></span>Pasa</span>
+        <span class="legend-item"><span class="legend-sq" style="background:#f59e0b"></span>Parcial</span>
+        <span class="legend-item"><span class="legend-sq" style="background:#ef4444"></span>Falla</span>
+      </div>
+      <div id="secciones-container"></div>
+    </div>
+
+    <div class="callout-warn" style="margin-top:14px">
+      <strong>⚠️ Nota sobre Eduardo Vega (Div. Residencial)</strong>
+      <p>Reportó 6 fallos en Sección 1.3 (Tabla de Inventario) — la tabla apareció vacía para proyectos de QRO (Kulkana, Adamar). Su total: 21✅ / 7❌ / 7⚠️ de 35 escenarios.</p>
+    </div>
+  </div>
+
+  <!-- TAB 2: BUGS -->
+  <div class="tab-panel" id="panel-2">
+    <div class="filter-bar" id="bug-filter-bar">
+      <button class="filter-btn active" onclick="filterBugs('Todos', this)">Todos (14)</button>
+      <button class="filter-btn" onclick="filterBugs('Alta', this)">Alta (4)</button>
+      <button class="filter-btn" onclick="filterBugs('Media', this)">Media (7)</button>
+      <button class="filter-btn" onclick="filterBugs('Baja', this)">Baja (3)</button>
+    </div>
+    <p class="count-label" id="bug-count">14 issues · ordenados por número de reportes</p>
+    <div id="bugs-container"></div>
+  </div>
+
+  <!-- TAB 3: HISTORIAS DE USUARIO -->
+  <div class="tab-panel" id="panel-3">
+    <div class="filter-bar" id="us-filter-bar">
+      <button class="filter-btn active" onclick="filterUS('Todos', this)">Todos</button>
+      <button class="filter-btn" onclick="filterUS('Alta', this)">Alta</button>
+      <button class="filter-btn" onclick="filterUS('Media', this)">Media</button>
+      <button class="filter-btn" onclick="filterUS('Baja', this)">Baja</button>
+    </div>
+    <p class="count-label" id="us-count">10 historias</p>
+    <div id="us-container"></div>
+  </div>
+
+  <!-- TAB 4: SATISFACCIÓN -->
+  <div class="tab-panel" id="panel-4">
+    <div class="card">
+      <p class="card-label">Evaluación promedio (6 responden)</p>
+      <div class="rating-row">
+        <span style="font-size:13px;color:#334155">Navegación entre pantallas</span>
+        <div style="display:flex;align-items:center;gap:6px"><div class="stars" id="s1"></div><span class="rating-num">4.6/5</span></div>
+      </div>
+      <div class="rating-row">
+        <span style="font-size:13px;color:#334155">Claridad de métricas e indicadores</span>
+        <div style="display:flex;align-items:center;gap:6px"><div class="stars" id="s2"></div><span class="rating-num">3.4/5</span></div>
+      </div>
+      <div class="rating-row">
+        <span style="font-size:13px;color:#334155">Utilidad del mapa</span>
+        <div style="display:flex;align-items:center;gap:6px"><div class="stars" id="s3"></div><span class="rating-num">4.7/5</span></div>
+      </div>
+      <div class="rating-row">
+        <span style="font-size:13px;color:#334155">¿Recomendarías la herramienta?</span>
+        <div style="display:flex;align-items:center;gap:6px"><div class="stars" id="s4"></div><span class="rating-num">4.8/5</span></div>
+      </div>
+      <div class="rating-row">
+        <span style="font-size:13px;color:#334155">Impacto en el negocio</span>
+        <div style="display:flex;align-items:center;gap:6px"><div class="stars" id="s5"></div><span class="rating-num">4.8/5</span></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <p class="card-label">Por evaluador</p>
+      <div style="overflow-x:auto">
+        <table class="sat-table">
+          <thead>
+            <tr>
+              <th>Evaluador</th>
+              <th style="text-align:center">Nav.</th>
+              <th style="text-align:center">Métr.</th>
+              <th style="text-align:center">Mapa</th>
+              <th style="text-align:center">Rec.</th>
+              <th style="text-align:center">Impacto</th>
+            </tr>
+          </thead>
+          <tbody id="sat-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <p class="card-label">Comentarios de evaluadores</p>
+      <div id="comments-container"></div>
+    </div>
+  </div>
+
+  <p class="footer">SIM TYA · Prueba funcional v1 · 7 evaluadores · Junio 2026</p>
+</div>
+
+<script>
+// ── DATOS ────────────────────────────────────────────────────────────────────
+const evaluadores = [
+  { id:"ivan",    ini:"IR", nombre:"Iván Rosales",    area:"Finanzas",              color:"#2563eb", bg:"#dbeafe",
+    ratings:{nav:5,metricas:3,mapa:4,rec:4,impacto:5},
+    comentario:"En general bien. Falta afinar detalles e integrar una pestaña ejecutiva con propuestas específicas sobre lo que estés analizando.",
+    items:{"1.1":{p:4,f:1,pa:2},"1.2":{p:6,f:0,pa:1},"1.3":{p:6,f:0,pa:0},"2.1":{p:5,f:0,pa:1},"2.2":{p:0,f:0,pa:3},"2.3":{p:2,f:0,pa:0},"2.4":{p:4,f:0,pa:0}} },
+  { id:"jose",    ini:"JP", nombre:"José Luis Pérez", area:"Comercial QRO",         color:"#0f766e", bg:"#ccfbf1",
+    ratings:{nav:null,metricas:null,mapa:null,rec:null,impacto:null},
+    comentario:null,
+    items:{"1.1":{p:7,f:0,pa:0},"1.2":{p:7,f:0,pa:0},"1.3":{p:5,f:1,pa:0},"2.1":{p:0,f:0,pa:0},"2.2":{p:0,f:0,pa:0},"2.3":{p:0,f:0,pa:0},"2.4":{p:0,f:0,pa:0}} },
+  { id:"mendieta",ini:"EM", nombre:"Eduardo Mendieta",area:"Usos Mixtos",           color:"#d97706", bg:"#fef3c7",
+    ratings:{nav:null,metricas:null,mapa:null,rec:null,impacto:null},
+    comentario:null,
+    items:{"1.1":{p:5,f:2,pa:0},"1.2":{p:7,f:0,pa:0},"1.3":{p:6,f:0,pa:0},"2.1":{p:5,f:1,pa:0},"2.2":{p:2,f:0,pa:1},"2.3":{p:2,f:0,pa:0},"2.4":{p:4,f:0,pa:0}} },
+  { id:"vega",    ini:"EV", nombre:"Eduardo Vega",    area:"Div. Residencial",      color:"#dc2626", bg:"#fee2e2",
+    ratings:{nav:5,metricas:4,mapa:5,rec:5,impacto:5},
+    comentario:"Muy buena experiencia de la app, la evaluación no tanto.",
+    items:{"1.1":{p:6,f:1,pa:0},"1.2":{p:3,f:0,pa:4},"1.3":{p:0,f:6,pa:0},"2.1":{p:3,f:0,pa:3},"2.2":{p:3,f:0,pa:0},"2.3":{p:2,f:0,pa:0},"2.4":{p:4,f:0,pa:0}} },
+  { id:"hector",  ini:"HC", nombre:"Héctor Castro",   area:"Turismo",               color:"#7c3aed", bg:"#ede9fe",
+    ratings:{nav:3,metricas:1,mapa:5,rec:5,impacto:4},
+    comentario:"Las métricas no fueron claras (1/5). El mapa fue lo más valorado (5/5). Impacto general 4/5.",
+    items:{"1.1":{p:5,f:1,pa:1},"1.2":{p:7,f:0,pa:0},"1.3":{p:6,f:0,pa:0},"2.1":{p:6,f:0,pa:0},"2.2":{p:3,f:0,pa:0},"2.3":{p:2,f:0,pa:0},"2.4":{p:3,f:1,pa:0}} },
+  { id:"rodrigo", ini:"RN", nombre:"Rodrigo Nieto",   area:"Dir. Operaciones Res.", color:"#0369a1", bg:"#e0f2fe",
+    ratings:{nav:5,metricas:5,mapa:5,rec:5,impacto:5},
+    comentario:"La plataforma es intuitiva y ofrece información muy relevante para la toma de decisiones. El mapa interactivo y los indicadores de mercado son especialmente valiosos. Es un poco lento en general. Me gustaría poder aplicar filtros en el apartado de Inventario.",
+    items:{"1.1":{p:5,f:1,pa:1},"1.2":{p:7,f:0,pa:0},"1.3":{p:6,f:0,pa:0},"2.1":{p:5,f:0,pa:1},"2.2":{p:3,f:0,pa:0},"2.3":{p:2,f:0,pa:0},"2.4":{p:4,f:0,pa:0}} },
+  { id:"roberto", ini:"RM", nombre:"Roberto Meléndez",area:"Comercial",             color:"#059669", bg:"#d1fae5",
+    ratings:{nav:5,metricas:4,mapa:4,rec:5,impacto:5},
+    comentario:"En general buena. Creo que con el uso constante de la herramienta se mejorará considerablemente.",
+    items:{"1.1":{p:6,f:1,pa:0},"1.2":{p:6,f:0,pa:1},"1.3":{p:5,f:0,pa:1},"2.1":{p:6,f:0,pa:0},"2.2":{p:3,f:0,pa:0},"2.3":{p:2,f:0,pa:0},"2.4":{p:3,f:1,pa:0}} },
+];
+
+const SECCIONES = [
+  {id:"1.1",nombre:"Filtros y Búsqueda",total:7},
+  {id:"1.2",nombre:"Métricas y Gráficas",total:7},
+  {id:"1.3",nombre:"Tabla de Inventario",total:6},
+  {id:"2.1",nombre:"Mapa y Filtros",total:6},
+  {id:"2.2",nombre:"Pestaña Desarrolladores",total:3},
+  {id:"2.3",nombre:"Mercado Abierto",total:2},
+  {id:"2.4",nombre:"Pestaña Demanda",total:4},
+];
+
+const BUGS = [
+  {p:"Alta",  t:"Botón 'Limpiar' no visible",                       d:"5 de 7 usuarios no encontraron el botón para resetear filtros. Es el bug más reportado y bloquea el flujo principal de uso.",                                                                   s:"1.1.7",   rep:"I. Rosales, E. Vega, H. Castro, R. Nieto, R. Meléndez", v:5},
+  {p:"Alta",  t:"Tabla de inventario sin datos en QRO",              d:"Para proyectos como Kulkana y Adamar (Querétaro) la tabla aparece vacía y el botón Exportar CSV no funciona.",                                                                                   s:"1.3",     rep:"E. Vega (Div. Residencial)",                              v:1},
+  {p:"Alta",  t:"Datos de ventas 2026 inconsistentes",               d:"Las cifras de absorción no coinciden con contratos firmados ni escrituras reales. Los cambios de nombre se contabilizan como ventas.",                                                          s:"1.2",     rep:"I. Rosales, E. Mendieta",                                  v:2},
+  {p:"Alta",  t:"Sección Empleo / Demanda no carga",                 d:"La gráfica de Fuentes de Empleo por municipio falla o no muestra datos en ciertos municipios.",                                                                                                 s:"2.4.3",   rep:"H. Castro, R. Meléndez",                                   v:2},
+  {p:"Media", t:"Filtro municipal no distingue en Jalisco",          d:"Al seleccionar Guadalajara, el mapa carga todo Jalisco. No se puede filtrar por Zapopan, Tlajomulco u otros municipios específicos.",                                                          s:"2.1.2",   rep:"I. Rosales, R. Nieto",                                     v:2},
+  {p:"Media", t:"TYA ausente en ranking de competidores",            d:"La tabla de ventas por competidor en la pestaña Desarrolladores no incluye los proyectos propios de TYA.",                                                                                      s:"2.2.3",   rep:"I. Rosales",                                               v:1},
+  {p:"Media", t:"PDF exportado con errores de mapa",                 d:"El PDF muestra ubicación incorrecta del polígono, el contenido se ve muy pequeño y no incluye la información de proyectos seleccionados.",                                                      s:"2.1.6",   rep:"E. Vega, R. Nieto",                                        v:2},
+  {p:"Media", t:"Producto 'Lotes' sin oferta en el mapa",            d:"Al filtrar por tipo de proyecto 'Lotes', el mapa no muestra oferta disponible.",                                                                                                                s:"2.1.4",   rep:"E. Vega, R. Meléndez",                                     v:2},
+  {p:"Media", t:"Pestaña Demanda no contextualizada al polígono",    d:"Los indicadores de demanda muestran datos de toda la ciudad, no de la zona del polígono dibujado en el mapa.",                                                                                  s:"2.4.1",   rep:"E. Mendieta",                                              v:1},
+  {p:"Media", t:"Pestaña Desarrolladores: fechas 2025 sin datos",    d:"Al aplicar filtro de fechas desde 2025 a la fecha, las gráficas y la tabla no muestran resultados.",                                                                                            s:"2.2.2",   rep:"I. Rosales",                                               v:1},
+  {p:"Media", t:"Distribución de precios 'Vendidos' en cero",        d:"En la pestaña Mercado Abierto, la columna de Vendidos aparece en 0 en todos los rangos de ticket.",                                                                                             s:"2.3.2",   rep:"R. Nieto",                                                 v:1},
+  {p:"Baja",  t:"Chips de estado sin diferenciación de color",       d:"DISPONIBLE, CONTRATADO y ESCRITURADO muestran el mismo color. No hay distinción visual entre estados.",                                                                                         s:"1.3.3",   rep:"J.L. Pérez",                                               v:1},
+  {p:"Baja",  t:"Población en Demanda solo muestra ZM Guadalajara",  d:"La sección Población no desagrega por municipio; solo muestra la zona metropolitana de GDL.",                                                                                                   s:"2.4.2",   rep:"R. Meléndez",                                              v:1},
+  {p:"Baja",  t:"Rendimiento lento en paginación y exportación",     d:"Varios usuarios reportaron lentitud general: paginación de tabla, carga de exportación CSV y carga de gráficas.",                                                                               s:"General", rep:"E. Mendieta, R. Nieto, R. Meléndez",                       v:3},
+];
+
+const HISTORIAS = [
+  {p:"Alta",  t:"Selección múltiple de prototipos y rangos de superficie",       como:"analista de producto",    quiero:"seleccionar varios prototipos simultáneamente y definir rangos de m² en los filtros",                                                    para:"segmentar el inventario por capacidad de compra y ticket objetivo",                                     area:"Filtros",         autores:"I. Rosales, R. Meléndez", v:2},
+  {p:"Alta",  t:"Precio promedio histórico alineado al periodo de absorción",    como:"usuario de Finanzas",     quiero:"que el precio promedio refleje el mismo horizonte temporal que la absorción histórica",                                                  para:"comparar métricas en el mismo periodo y detectar tendencias reales de precio",                         area:"Métricas",        autores:"I. Rosales",               v:1},
+  {p:"Alta",  t:"Excluir cambios de nombre y cancelaciones de cifras de venta",  como:"analista de mercado",     quiero:"que las gráficas distingan contratos reales de cambios de titular y cancelaciones",                                                     para:"medir demanda efectiva y no inflar las cifras de absorción",                                            area:"Calidad de datos",autores:"I. Rosales, E. Mendieta",  v:2},
+  {p:"Media", t:"Filtrar tabla de inventario por estado de unidad",              como:"gerente comercial",       quiero:"filtrar masivamente la tabla por Disponible, Contratado o Escriturado",                                                                  para:"analizar el pipeline de ventas y velocidad de cierre por prototipo",                                    area:"Tabla Inventario",autores:"I. Rosales, R. Nieto",     v:2},
+  {p:"Media", t:"Filtro por rango de precios y agrupación de prototipos",        como:"director comercial",      quiero:"aplicar un filtro de rango de precios y agrupar prototipos similares en las métricas",                                                   para:"analizar segmentos de mercado sin revisar prototipo por prototipo",                                     area:"Filtros / Métr.", autores:"R. Meléndez",              v:1},
+  {p:"Media", t:"Cruzar inventario disponible vs absorción en una sola gráfica", como:"directora de división",   quiero:"ver en el mismo gráfico inventario disponible y absorción mensual",                                                                      para:"diagnosticar velocidad de venta y anticipar momentos de desabasto",                                    area:"Gráficas",        autores:"E. Vega",                  v:1},
+  {p:"Media", t:"Resaltar proyectos con mayor absorción en el mapa",             como:"director comercial",      quiero:"que los marcadores del mapa diferencien visualmente los proyectos con alta absorción",                                                   para:"identificar rápidamente a los competidores más activos en la zona",                                     area:"Mapa",            autores:"I. Rosales",               v:1},
+  {p:"Media", t:"Datos de m² de construcción y bonos en tabla de inventario",   como:"usuario comercial",       quiero:"ver m² de construcción y bonos disponibles por unidad en la tabla",                                                                      para:"tener información completa para la argumentación de venta sin salir de la plataforma",                 area:"Tabla Inventario",autores:"R. Meléndez",              v:1},
+  {p:"Baja",  t:"Pestaña ejecutiva con propuestas de acción contextuales",       como:"director de negocio",     quiero:"una pantalla con recomendaciones automáticas: sembrado, rangos de precio, salida de mercado por prototipo",                               para:"acelerar la toma de decisiones estratégicas sin salir del SIM",                                         area:"Nueva pantalla",  autores:"I. Rosales",               v:1},
+  {p:"Baja",  t:"Fecha fin por default al último día del mes concluido",         como:"usuario frecuente",       quiero:"que el campo fecha fin se pre-cargue en el último día del mes anterior",                                                                  para:"evitar ajustes manuales en cada consulta y reducir errores de periodo",                                 area:"UX / Filtros",    autores:"I. Rosales",               v:1},
+];
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function switchTab(n) {
+  document.querySelectorAll('.tab-panel').forEach((p,i) => p.classList.toggle('active', i===n));
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===n));
+}
+
+// ── SECCIONES ─────────────────────────────────────────────────────────────────
+let currentEv = 'avg';
+
+function renderSecciones(evId) {
+  const container = document.getElementById('secciones-container');
+  container.innerHTML = '';
+  SECCIONES.forEach(s => {
+    let pasa, falla, parcial;
+    if (evId === 'avg') {
+      const valid = evaluadores.filter(e => e.items[s.id]);
+      pasa    = Math.round(valid.reduce((a,e) => a + e.items[s.id].p,  0) / valid.length);
+      falla   = Math.round(valid.reduce((a,e) => a + e.items[s.id].f,  0) / valid.length);
+      parcial = Math.round(valid.reduce((a,e) => a + e.items[s.id].pa, 0) / valid.length);
+    } else {
+      const ev = evaluadores.find(e => e.id === evId);
+      ({p: pasa, f: falla, pa: parcial} = ev.items[s.id] || {p:0,f:0,pa:0});
+    }
+    const total = s.total;
+    const pw = (pasa/total*100).toFixed(0);
+    const partw = (parcial/total*100).toFixed(0);
+    const fw = (falla/total*100).toFixed(0);
+
+    const numsHtml = `<span style="color:#10b981;font-weight:700">${pasa}✅</span>${parcial>0?` <span style="color:#d97706;font-weight:700">${parcial}⚠️</span>`:''}${falla>0?` <span style="color:#ef4444;font-weight:700">${falla}❌</span>`:''}<span style="color:#94a3b8"> / ${total}</span>`;
+
+    container.innerHTML += `
+      <div class="seccion-row">
+        <div class="seccion-header">
+          <span><span class="seccion-id">${s.id}</span><span class="seccion-nombre">${s.nombre}</span></span>
+          <span class="seccion-nums">${numsHtml}</span>
+        </div>
+        <div class="bar-wrap">
+          <div class="bar-pass" style="width:${pw}%"></div>
+          <div class="bar-partial" style="width:${partw}%"></div>
+          <div class="bar-fail" style="width:${fw}%"></div>
+        </div>
+      </div>`;
+  });
+}
+
+function selectEv(id, btn) {
+  document.querySelectorAll('.ev-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentEv = id;
+  renderSecciones(id);
+}
+
+// ── BUGS ──────────────────────────────────────────────────────────────────────
+let currentBugFilter = 'Todos';
+const bugColors = { Alta:'#ef4444', Media:'#f59e0b', Baja:'#10b981' };
+const bugPillColors = {
+  Alta:  {bg:'#fef2f2',border:'#dc2626',text:'#7f1d1d'},
+  Media: {bg:'#fffbeb',border:'#d97706',text:'#78350f'},
+  Baja:  {bg:'#f0fdf4',border:'#16a34a',text:'#14532d'},
+};
+
+function renderBugs(filtro) {
+  const container = document.getElementById('bugs-container');
+  const lista = BUGS.filter(b => filtro==='Todos' || b.p===filtro)
+                    .sort((a,b) => b.v - a.v);
+  document.getElementById('bug-count').textContent = `${lista.length} issue${lista.length!==1?'s':''} · ordenados por número de reportes`;
+  container.innerHTML = '';
+  lista.forEach((b, i) => {
+    const c = bugPillColors[b.p];
+    container.innerHTML += `
+      <div class="item-card" style="border-left-color:${bugColors[b.p]}" onclick="toggleItem('bug-${i}')">
+        <div class="item-header">
+          <div style="flex:1">
+            <p class="item-title">${b.t}</p>
+            <div class="item-tags">
+              <span class="pill" style="background:${c.bg};color:${c.text};border:1px solid ${c.border}">${b.p}</span>
+              <span class="tag tag-section">§${b.s}</span>
+              <span class="tag tag-votos">${b.v} reporte${b.v>1?'s':''}</span>
+            </div>
+          </div>
+          <span class="chevron" id="chev-bug-${i}">▾</span>
+        </div>
+        <div class="item-body" id="bug-${i}">
+          <p class="item-desc">${b.d}</p>
+          <p class="item-meta"><strong style="color:#64748b">Reportado por:</strong> ${b.rep}</p>
+        </div>
+      </div>`;
+  });
+}
+
+function filterBugs(filtro, btn) {
+  document.querySelectorAll('#bug-filter-bar .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentBugFilter = filtro;
+  renderBugs(filtro);
+}
+
+// ── HISTORIAS ─────────────────────────────────────────────────────────────────
+let currentUSFilter = 'Todos';
+const usColors = { Alta:'#ef4444', Media:'#f59e0b', Baja:'#10b981' };
+
+function renderUS(filtro) {
+  const container = document.getElementById('us-container');
+  const lista = HISTORIAS.filter(h => filtro==='Todos' || h.p===filtro)
+                         .sort((a,b) => b.v - a.v);
+  document.getElementById('us-count').textContent = `${lista.length} historia${lista.length!==1?'s':''}`;
+  container.innerHTML = '';
+  lista.forEach((h, i) => {
+    const c = bugPillColors[h.p];
+    container.innerHTML += `
+      <div class="item-card" style="border-left-color:${usColors[h.p]}" onclick="toggleItem('us-${i}')">
+        <div class="item-header">
+          <div style="flex:1">
+            <p class="item-title">${h.t}</p>
+            <div class="item-tags">
+              <span class="pill" style="background:${c.bg};color:${c.text};border:1px solid ${c.border}">${h.p}</span>
+              <span class="tag tag-area">${h.area}</span>
+              ${h.v>1?`<span class="tag tag-votos">${h.v} votos</span>`:''}
+              <span class="tag tag-section">${h.autores}</span>
+            </div>
+          </div>
+          <span class="chevron" id="chev-us-${i}">▾</span>
+        </div>
+        <div class="item-body" id="us-${i}">
+          <div class="us-box">
+            <p><strong>Como</strong> ${h.como},</p>
+            <p><strong>quiero</strong> ${h.quiero},</p>
+            <p><strong>para</strong> ${h.para}.</p>
+          </div>
+        </div>
+      </div>`;
+  });
+}
+
+function filterUS(filtro, btn) {
+  document.querySelectorAll('#us-filter-bar .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderUS(filtro);
+}
+
+// ── TOGGLE EXPAND ─────────────────────────────────────────────────────────────
+function toggleItem(id) {
+  const body = document.getElementById(id);
+  const chev = document.getElementById('chev-' + id);
+  body.classList.toggle('open');
+  if (chev) chev.classList.toggle('open');
+}
+
+// ── SATISFACCIÓN ──────────────────────────────────────────────────────────────
+function starsHTML(val, id) {
+  let html = '';
+  for (let i=1;i<=5;i++) {
+    const fill = i <= Math.round(val) ? '#f59e0b' : '#e2e8f0';
+    html += `<svg width="14" height="14" viewBox="0 0 24 24" fill="${fill}"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>`;
+  }
+  if (id) document.getElementById(id).innerHTML = html;
+  return html;
+}
+
+function numColor(v) {
+  if (v===null) return '#e2e8f0';
+  if (v>=4) return '#10b981';
+  if (v>=3) return '#f59e0b';
+  return '#ef4444';
+}
+
+function renderSatTable() {
+  const tbody = document.getElementById('sat-table-body');
+  evaluadores.forEach(e => {
+    const r = e.ratings;
+    const keys = ['nav','metricas','mapa','rec','impacto'];
+    const cells = keys.map(k => r[k]!==null
+      ? `<td class="num-cell"><span style="font-weight:700;color:${numColor(r[k])}">${r[k]}</span></td>`
+      : `<td class="num-cell"><span style="color:#e2e8f0">—</span></td>`).join('');
+    tbody.innerHTML += `<tr>
+      <td style="padding:7px 8px;border-bottom:1px solid #f1f5f9">
+        <div style="display:flex;align-items:center;gap:7px">
+          <div style="width:24px;height:24px;border-radius:50%;background:${e.bg};color:${e.color};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0">${e.ini}</div>
+          <span style="font-weight:600;color:#1e293b">${e.nombre.split(' ')[0]}</span>
+        </div>
+      </td>${cells}</tr>`;
+  });
+}
+
+function renderComments() {
+  const container = document.getElementById('comments-container');
+  evaluadores.filter(e => e.comentario).forEach(e => {
+    container.innerHTML += `
+      <div class="comment-card">
+        <p class="comment-text">"${e.comentario}"</p>
+        <div class="comment-author">
+          <div style="width:26px;height:26px;border-radius:50%;background:${e.bg};color:${e.color};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0">${e.ini}</div>
+          <span class="comment-name">${e.nombre}</span>
+          <span class="comment-area">${e.area}</span>
+        </div>
+      </div>`;
+  });
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+renderSecciones('avg');
+renderBugs('Todos');
+renderUS('Todos');
+starsHTML(4.6, 's1'); starsHTML(3.4, 's2'); starsHTML(4.7, 's3'); starsHTML(4.8, 's4'); starsHTML(4.8, 's5');
+renderSatTable();
+renderComments();
+</script>
+</body>
+</html>
