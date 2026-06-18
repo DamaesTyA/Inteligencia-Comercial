@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modelos Predictivos · TyA SIM Prot</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0D1B2B;--sf:#132236;--cd:#1A2E44;--bd:rgba(255,255,255,.08);--tx:#F0F4F8;--dm:#7A99B8;--c1:#F0C040;--c2:#3DD68C;--c3:#5BB5F5;--c4:#FF7B6B;--c5:#A78BFA}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
+
+/* HERO */
+.hero{text-align:center;padding:56px 24px 44px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(240,192,64,.07) 0%,transparent 65%);pointer-events:none}
+.ey{font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--c1);margin-bottom:16px;display:block}
+.hero h1{font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,50px);font-weight:800;line-height:1.1;margin-bottom:16px;background:linear-gradient(135deg,#F0F4F8,#7BAFD4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:16px;color:var(--dm);max-width:560px;margin:0 auto 36px;line-height:1.65}
+.pills{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;max-width:840px;margin:0 auto}
+.pill{display:flex;align-items:center;gap:8px;background:var(--sf);border:1px solid var(--bd);border-radius:40px;padding:8px 15px;font-size:13px;font-weight:500}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* TABS */
+.tw{position:sticky;top:0;z-index:100;background:rgba(13,27,43,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--bd)}
+.tabs{display:flex;max-width:980px;margin:0 auto;overflow-x:auto;padding:0 12px}
+.tab{flex:1;min-width:130px;padding:14px 14px;background:none;border:none;border-bottom:3px solid transparent;color:var(--dm);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center;white-space:nowrap}
+.tab:hover{color:var(--tx)}
+.tab[data-m="1"].on{border-color:var(--c1);color:var(--c1)}
+.tab[data-m="2"].on{border-color:var(--c2);color:var(--c2)}
+.tab[data-m="3"].on{border-color:var(--c3);color:var(--c3)}
+.tab[data-m="4"].on{border-color:var(--c4);color:var(--c4)}
+.tab[data-m="5"].on{border-color:var(--c5);color:var(--c5)}
+
+/* PANELS */
+.panel{display:none}.panel.on{display:block}
+.inner{max-width:960px;margin:0 auto;padding:48px 24px 72px}
+
+/* MODEL HEADER */
+.mlabel{font-size:11px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;display:block;margin-bottom:10px}
+.mtitle{font-family:'Outfit',sans-serif;font-size:clamp(22px,4vw,38px);font-weight:800;line-height:1.15;margin-bottom:14px}
+.mdesc{font-size:16px;color:var(--dm);line-height:1.7;max-width:720px;margin-bottom:28px}
+
+/* METRIC CARD */
+.mcard{display:inline-flex;flex-direction:column;background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:20px 24px;gap:4px}
+.mnum{font-family:'Outfit',sans-serif;font-size:42px;font-weight:800;line-height:1}
+.mlbl{font-size:12px;color:var(--dm);font-weight:500}
+.mctx{font-size:13px;margin-top:2px}
+.bbar{height:5px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden;margin-top:8px;width:100%}
+.bfill{height:100%;border-radius:3px}
+.bnote{font-size:11px;color:var(--dm);margin-top:4px}
+
+/* SECTION HEADER */
+.sh{font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--dm);margin-bottom:14px;margin-top:32px}
+hr{border:none;border-top:1px solid var(--bd);margin:28px 0}
+
+/* MATH BOX */
+.math-box{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:20px 22px}
+.formula{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;background:rgba(0,0,0,.35);border-radius:8px;padding:10px 16px;margin:10px 0;letter-spacing:.02em;overflow-x:auto;color:#D4E8FF}
+.fcaption{font-size:13px;color:var(--dm);line-height:1.65;margin-top:4px}
+
+/* BOOSTING FLOW */
+.bflow{display:flex;align-items:flex-start;gap:0;overflow-x:auto;padding:14px 0 4px;margin-top:4px}
+.bstep{display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;min-width:88px}
+.bbox{border-radius:10px;padding:10px 8px;font-size:11px;font-weight:600;text-align:center;line-height:1.4;border:1px solid;width:82px}
+.berr{font-size:10px;font-weight:600;text-align:center}
+.barr{font-size:15px;color:var(--dm);padding-top:14px;flex-shrink:0;width:18px;text-align:center}
+
+/* HW DECOMP */
+.hw-decomp{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px}
+.hw-comp{background:rgba(91,181,245,.08);border:1px solid rgba(91,181,245,.2);border-radius:10px;padding:12px 14px;text-align:center}
+.hw-ico{font-size:20px;margin-bottom:4px;display:block}
+.hw-lbl{font-size:12px;font-weight:600;color:var(--c3);margin-bottom:3px}
+.hw-desc{font-size:11.5px;color:var(--dm);line-height:1.4}
+
+/* SOURCE GRID */
+.src-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:11px;margin-top:4px}
+.src-card{background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:13px 15px}
+.src-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:9px}
+.src-ico{font-size:21px;flex-shrink:0;line-height:1.1}
+.src-name{font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;line-height:1.2;margin-bottom:4px}
+.stag{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:9px;border:1px solid}
+.tf{background:rgba(240,192,64,.12);color:#E8B84B;border-color:rgba(240,192,64,.3)}
+.tm{background:rgba(61,214,140,.12);color:#3DD68C;border-color:rgba(61,214,140,.3)}
+.ts{background:rgba(91,181,245,.12);color:#5BB5F5;border-color:rgba(91,181,245,.3)}
+.tseg{background:rgba(255,123,107,.12);color:#FF7B6B;border-color:rgba(255,123,107,.3)}
+.te{background:rgba(167,139,250,.12);color:#A78BFA;border-color:rgba(167,139,250,.3)}
+.tu{background:rgba(52,211,153,.12);color:#34D399;border-color:rgba(52,211,153,.3)}
+.tma{background:rgba(251,146,60,.12);color:#FB923C;border-color:rgba(251,146,60,.3)}
+.tr{background:rgba(156,163,175,.12);color:#9CA3AF;border-color:rgba(156,163,175,.3)}
+.tt{background:rgba(167,139,250,.12);color:#A78BFA;border-color:rgba(167,139,250,.3)}
+.src-vars{list-style:none;padding:0}
+.src-vars li{font-size:12px;color:var(--dm);padding:3px 0;border-bottom:.5px solid rgba(255,255,255,.05);line-height:1.4}
+.src-vars li:last-child{border-bottom:none}
+.src-vars li::before{content:'·';margin-right:6px;opacity:.4}
+
+/* USE CARDS */
+.ucards{display:grid;grid-template-columns:repeat(auto-fit,minmax(218px,1fr));gap:12px;margin-top:4px}
+.ucard{background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:18px}
+.uico{font-size:23px;margin-bottom:8px;display:block}
+.utitle{font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;margin-bottom:6px}
+.utxt{font-size:13px;color:var(--dm);line-height:1.55}
+
+/* INSIGHTS ROW */
+.irow{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:10px;margin:14px 0}
+.ins{background:var(--cd);border:1px solid var(--bd);border-radius:10px;padding:13px 15px}
+.iv{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;margin-bottom:3px}
+.it{font-size:12px;color:var(--dm);line-height:1.4}
+
+/* CHARTS (Tab 5) */
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin:18px 0 8px}
+@media(max-width:580px){.chart-row{grid-template-columns:1fr}}
+.chart-head{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;margin-bottom:8px;text-align:center}
+.chart-wrap{background:var(--sf);border:1px solid var(--bd);border-radius:11px;padding:6px;overflow:hidden}
+.chart-wrap svg{display:block;width:100%;height:auto}
+.chart-cap{font-size:12px;color:var(--dm);text-align:center;margin-top:7px;line-height:1.5}
+.chart-r2{font-size:12px;font-weight:600;text-align:center;margin-top:4px}
+
+.icards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:11px;margin:14px 0}
+.ic{background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:16px}
+.ic-title{font-family:'Outfit',sans-serif;font-size:13.5px;font-weight:700;margin-bottom:6px}
+.ic-txt{font-size:13px;color:var(--dm);line-height:1.55}
+
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--dm);margin-top:10px;padding:10px 14px;background:var(--sf);border-radius:9px;border:1px solid var(--bd)}
+.lgnd-item{display:flex;align-items:center;gap:6px}
+.lgnd-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.lgnd-line{width:18px;height:2px;flex-shrink:0}
+
+/* OPPORTUNITIES SECTION */
+.opp-sec{background:var(--sf);border-top:2px solid rgba(167,139,250,.25)}
+.opp-inner{max-width:960px;margin:0 auto;padding:52px 24px 68px}
+.opp-title{font-family:'Outfit',sans-serif;font-size:clamp(22px,3.5vw,34px);font-weight:800;line-height:1.2;margin-bottom:14px}
+.opp-sub{font-size:15px;color:var(--dm);line-height:1.65;max-width:700px;margin-bottom:0}
+.opp-global{background:var(--bg);border:1px solid var(--bd);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+.opp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(282px,1fr));gap:12px;margin-top:4px}
+.opp-card{background:var(--bg);border:1px solid var(--bd);border-radius:12px;padding:16px 18px}
+.opp-mod{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:8px;border:1px solid;margin-bottom:8px;letter-spacing:.06em;text-transform:uppercase}
+.opp-head{font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;margin-bottom:8px;color:var(--dm)}
+.opp-list{list-style:none;padding:0}
+.opp-list li{font-size:12.5px;color:var(--dm);padding:5px 0;border-bottom:.5px solid rgba(255,255,255,.05);line-height:1.5}
+.opp-list li:last-child{border-bottom:none}
+.opp-list li::before{content:'→';margin-right:8px;opacity:.4;font-size:11px}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <span class="ey">TyA · SIM Prot · Inteligencia Artificial Inmobiliaria</span>
+  <h1>4 modelos que leen<br>el mercado por ti</h1>
+  <p>Detrás del SIM TyA hay cuatro sistemas de inteligencia artificial entrenados con datos reales del mercado inmobiliario mexicano. Qué hace cada uno, cómo aprendió y para qué sirve.</p>
+  <div class="pills">
+    <div class="pill"><div class="dot" style="background:var(--c1)"></div>Precio de mercado · MAPE 4.5%</div>
+    <div class="pill"><div class="dot" style="background:var(--c2)"></div>Precio TyA · MAPE 3.7%</div>
+    <div class="pill"><div class="dot" style="background:var(--c3)"></div>Proyección de tendencias</div>
+    <div class="pill"><div class="dot" style="background:var(--c4)"></div>Velocidad de venta</div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tw">
+  <div class="tabs">
+    <button class="tab on" data-m="1" onclick="go(1)">① Precio Mercado</button>
+    <button class="tab" data-m="2" onclick="go(2)">② Precio TyA</button>
+    <button class="tab" data-m="3" onclick="go(3)">③ Proyección</button>
+    <button class="tab" data-m="4" onclick="go(4)">④ Velocidad Venta</button>
+    <button class="tab" data-m="5" onclick="go(5)">⑤ ¿Cómo aprenden?</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PANEL 1 · DD360
+════════════════════════════════════ -->
+<div class="panel on" id="p1">
+<div class="inner">
+  <span class="mlabel" style="color:var(--c1)">Modelo 1 · XGBoost DD360 v2</span>
+  <div class="mtitle">¿Cuánto vale esta propiedad<br>en el mercado hoy?</div>
+  <p class="mdesc">Funciona como un perito valuador digital. Analiza las características de cualquier inmueble junto con su entorno urbano, socioeconómico y de mercado, y estima el precio justo en segundos.</p>
+
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:4px">
+    <div class="mcard">
+      <div class="mnum" style="color:var(--c1)">4.5%</div>
+      <div class="mlbl">Error promedio (MAPE)</div>
+      <div class="mctx">Si el valor real es $3M, estima entre $2.86M y $3.14M</div>
+      <div class="bbar"><div class="bfill" style="width:95.5%;background:var(--c1)"></div></div>
+      <div class="bnote">Comparable a los mejores valuadores digitales del mundo</div>
+    </div>
+    <div class="mcard">
+      <div class="mnum" style="color:var(--c1)">~44</div>
+      <div class="mlbl">Variables que analiza simultáneamente</div>
+      <div class="mctx">Físicas · socioeconómicas · de entorno · de mercado</div>
+    </div>
+  </div>
+
+  <hr>
+  <div class="sh">¿Por qué no es una regresión lineal?</div>
+  <div class="math-box">
+    <div class="formula">Precio_estimado = f₁(x) + f₂(x) + f₃(x) + ··· + f₅₀₀(x)</div>
+    <p class="fcaption">Cada <strong style="color:var(--tx)">fₖ(x)</strong> es un árbol de decisión pequeño que aprende a corregir los errores del árbol anterior. Una regresión lineal usa <em>una sola ecuación</em> con pendiente fija. XGBoost usa <strong style="color:var(--tx)">500 correcciones iterativas</strong> que convergen hacia la predicción más precisa. La pestaña ⑤ muestra esto visualmente.</p>
+    <div class="bflow">
+      <div class="bstep"><div class="bbox" style="background:rgba(255,100,80,.15);color:#FF7B6B;border-color:rgba(255,100,80,.4)">Árbol 1<br>Base</div><div class="berr" style="color:#FF7B6B">Error ~19%</div></div>
+      <div class="barr">→</div>
+      <div class="bstep"><div class="bbox" style="background:rgba(251,146,60,.15);color:#FB923C;border-color:rgba(251,146,60,.4)">Árbol 2<br>Corrige</div><div class="berr" style="color:#FB923C">Error ~11%</div></div>
+      <div class="barr">→</div>
+      <div class="bstep"><div class="bbox" style="background:rgba(240,192,64,.15);color:var(--c1);border-color:rgba(240,192,64,.4)">Árbol 50<br>Mejora</div><div class="berr" style="color:var(--c1)">Error ~7%</div></div>
+      <div class="barr">→</div>
+      <div class="bstep"><div class="bbox" style="background:rgba(61,214,140,.15);color:var(--c2);border-color:rgba(61,214,140,.4)">Árbol 500<br>Final</div><div class="berr" style="color:var(--c2)">Error 4.5%</div></div>
+    </div>
+  </div>
+
+  <hr>
+  <div class="sh">Variables que alimentan el modelo · organizadas por fuente</div>
+  <div class="src-grid">
+
+    <div class="src-card">
+      <div class="src-header"><span class="src-ico">🏘️</span><div><div class="src-name">Portales Inmobiliarios DD360</div><span class="stag tf">Características físicas · 8 vars</span></div></div>
+      <ul class="src-vars">
+        <li>Superficie en m²</li>
+        <li>Superficie en transformación logarítmica</li>
+        <li>Número de recámaras, baños y cajones</li>
+        <li>Antigüedad de la propiedad (años)</li>
+        <li>Tipo: casa horizontal o departamento</li>
+        <li>Indicador de vivienda de interés social</li>
+      </ul>
+    </div>
+
+    <div class="src-card">
+      <div class="src-header"><span class="src-ico">📊</span><div><div class="src-name">DD360 Mercado — Barrio</div><span class="stag tm">Contexto de mercado · 7 vars</span></div></div>
+      <ul class="src-vars">
+        <li>Precio mediano y promedio del barrio por m²</li>
+        <li>Dispersión de precios en la zona</li>
+        <li>Mix tipo de propiedad del barrio (% casas vs deptos)</li>
+        <li>Listings competidores activos</li>
+        <li>Tiempo mediano de venta del barrio</li>
+        <li>Ratio renta vs. venta de la zona</li>
+      </ul>
+    </div>
+
+    <div class="src-card">
+      <div class="src-header"><span class="src-ico">👥</span><div><div class="src-name">CONEVAL</div><span class="stag ts">Sociodemográfico · 2 vars</span></div></div>
+      <ul class="src-vars">
+        <li>Índice de rezago social del municipio</li>
+        <li>Grado de marginación</li>
+      </ul>
+    </div>
+
+    <div class="src-card">
+      <div class="src-header"><span class="src-ico">🔒</span><div><div class="src-name">SESNSP</div><span class="stag tseg">Seguridad · 2 vars</span></div></div>
+      <ul class="src-vars">
+        <li>Total de delitos registrados por municipio</li>
+        <li>Delitos de violencia (alto impacto)</li>
+      </ul>
+    </div>
+
+    <div class="src-card">
+      <div class="src-header"><span class="src-ico">💼</span><div><div class="src-name">IMSS</div><span class="stag te">Económico · 1 var</span></div></div>
+      <ul class="src-vars">
+        <li>Trabajadores formales registrados por estado</li>
+      </ul>
+    </div>
+
+    <div class="src-card">
+      <div class="src-header"><span class="src-ico">⚠️</span><div><div class="src-name">CENAPRED</div><span class="stag tr">Riesgo ambiental · 1 var</span></div></div>
+      <ul class="src-vars">
+        <li>Clasificación de zona de riesgo sísmico</li>
+      </ul>
+    </div>
+
+    <div class="src-card">
+      <div class="src-header"><span class="src-ico">🏪</span><div><div class="src-name">DENUE (INEGI)</div><span class="stag tu">Entorno urbano · 14 vars</span></div></div>
+      <ul class="src-vars">
+        <li>Densidad económica en 500m y 1km</li>
+        <li>Escuelas en 500m y 1km</li>
+        <li>Hospitales y clínicas en 500m</li>
+        <li>Comercios en 500m y 1km</li>
+        <li>Restaurantes en 500m</li>
+        <li>Bancos y servicios financieros en 500m</li>
+        <li>Transporte público en 500m y 1km</li>
+        <li>Índice de caminabilidad (walkscore proxy)</li>
+      </ul>
+    </div>
+
+    <div class="src-card">
+      <div class="src-header"><span class="src-ico">🗺️</span><div><div class="src-name">OpenStreetMap (OSM)</div><span class="stag tu">Entorno urbano · 3 vars</span></div></div>
+      <ul class="src-vars">
+        <li>Amenidades urbanas adicionales (verificación independiente)</li>
+        <li>Transporte público (conteo alternativo)</li>
+        <li>Parques y espacios públicos</li>
+      </ul>
+    </div>
+
+    <div class="src-card">
+      <div class="src-header"><span class="src-ico">📉</span><div><div class="src-name">Banxico</div><span class="stag tma">Macroeconómico · 3 vars</span></div></div>
+      <ul class="src-vars">
+        <li>Tasa TIIE 28 días</li>
+        <li>Tasa hipotecaria promedio de mercado</li>
+        <li>Tipo de cambio USD/MXN</li>
+      </ul>
+    </div>
+
+    <div class="src-card">
+      <div class="src-header"><span class="src-ico">📈</span><div><div class="src-name">INPC (INEGI / Banxico)</div><span class="stag tma">Macroeconómico · 1 var</span></div></div>
+      <ul class="src-vars">
+        <li>Factor de ajuste inflacionario anual (todos los precios en pesos de marzo 2025)</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <hr>
+  <div class="sh">¿Para qué sirve en el negocio?</div>
+  <div class="ucards">
+    <div class="ucard"><span class="uico">🎯</span><div class="utitle">Referencia de mercado instantánea</div><p class="utxt">Conocer el precio de mercado de cualquier propiedad en las ciudades de TyA sin necesidad de valuador externo.</p></div>
+    <div class="ucard"><span class="uico">🔍</span><div class="utitle">Análisis de la competencia</div><p class="utxt">Detectar si los proyectos de la competencia están sobre o subpreciados respecto al mercado real, por colonia y tipo de producto.</p></div>
+    <div class="ucard"><span class="uico">📊</span><div class="utitle">Posicionamiento de precio TyA</div><p class="utxt">Comparar el precio al que vende TyA frente al mercado abierto para entender el posicionamiento competitivo de cada proyecto.</p></div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PANEL 2 · TyA Casas
+════════════════════════════════════ -->
+<div class="panel" id="p2">
+<div class="inner">
+  <span class="mlabel" style="color:var(--c2)">Modelo 2 · XGBoost TyA Casas v4</span>
+  <div class="mtitle">¿A cuánto puede vender<br>TyA esta unidad?</div>
+  <p class="mdesc">Este modelo aprendió de 22 años de escrituras reales de TyA — no de precios de anuncio, sino del precio al que realmente se firmó cada venta. Es el modelo más preciso del portafolio.</p>
+
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:4px">
+    <div class="mcard">
+      <div class="mnum" style="color:var(--c2)">3.7%</div>
+      <div class="mlbl">Error promedio · El más preciso del portafolio</div>
+      <div class="mctx">Si el precio esperado es $2.5M, estima entre $2.41M y $2.59M</div>
+      <div class="bbar"><div class="bfill" style="width:96.3%;background:var(--c2)"></div></div>
+    </div>
+    <div class="mcard">
+      <div class="mnum" style="color:var(--c2)">25,599</div>
+      <div class="mlbl">Escrituras reales con las que aprendió</div>
+      <div class="mctx">Ventas completadas TyA de 2004 a 2026</div>
+    </div>
+  </div>
+
+  <hr>
+  <div class="sh">¿Por qué no es una regresión lineal?</div>
+  <div class="math-box">
+    <div class="formula">Precio_cierre = Σ fₖ(superficie, log_superficie, proyecto, ciudad)</div>
+    <p class="fcaption">Con <strong style="color:var(--tx)">500 árboles encadenados</strong>, el modelo captura relaciones no lineales que una regresión no puede: por ejemplo, que el mismo prototipo en un proyecto consolidado responde diferente al mismo prototipo en un desarrollo nuevo aunque tenga la misma superficie. La relación <em>proyecto × ciudad × momento de venta</em> es intrínsecamente no lineal.</p>
+    <div class="bflow">
+      <div class="bstep"><div class="bbox" style="background:rgba(255,100,80,.15);color:#FF7B6B;border-color:rgba(255,100,80,.4)">Árbol 1<br>Base</div><div class="berr" style="color:#FF7B6B">Error ~15%</div></div>
+      <div class="barr">→</div>
+      <div class="bstep"><div class="bbox" style="background:rgba(251,146,60,.15);color:#FB923C;border-color:rgba(251,146,60,.4)">Árbol 2<br>Corrige</div><div class="berr" style="color:#FB923C">Error ~8%</div></div>
+      <div class="barr">→</div>
+      <div class="bstep"><div class="bbox" style="background:rgba(240,192,64,.15);color:var(--c1);border-color:rgba(240,192,64,.4)">Árbol 50<br>Mejora</div><div class="berr" style="color:var(--c1)">Error ~5%</div></div>
+      <div class="barr">→</div>
+      <div class="bstep"><div class="bbox" style="background:rgba(61,214,140,.15);color:var(--c2);border-color:rgba(61,214,140,.4)">Árbol 500<br>Final</div><div class="berr" style="color:var(--c2)">Error 3.7%</div></div>
+    </div>
+  </div>
+
+  <hr>
+  <div class="sh">Variables que alimentan el modelo · organizadas por fuente</div>
+  <div class="src-grid">
+
+    <div class="src-card">
+      <div class="src-header"><span class="src-ico">📐</span><div><div class="src-name">ERP TyA — Características físicas</div><span class="stag tf">Físicas · 2 vars confirmadas</span></div></div>
+      <ul class="src-vars">
+        <li>Superficie de construcción (m²)</li>
+        <li>Superficie en transformación logarítmica</li>
+      </ul>
+    </div>
+
+    <div class="src-card">
+      <div class="src-header"><span class="src-ico">🏗️</span><div><div class="src-name">ERP TyA — Identificación del desarrollo</div><span class="stag tm">Contexto · 2 vars confirmadas</span></div></div>
+      <ul class="src-vars">
+        <li>Proyecto al que pertenece la unidad</li>
+        <li>Ciudad / plaza de ubicación</li>
+      </ul>
+    </div>
+
+    <div class="src-card" style="border-color:rgba(251,146,60,.3)">
+      <div class="src-header"><span class="src-ico">🔜</span><div><div class="src-name">ERP TyA — Variables en integración</div><span class="stag tma">Próxima versión</span></div></div>
+      <ul class="src-vars">
+        <li>Precio mínimo de lista por unidad</li>
+        <li>Metros de frente del lote</li>
+        <li>Avance de obra al momento de la venta</li>
+        <li>Tipo de venta (contado / crédito hipotecario / preventa)</li>
+        <li>Nivel o piso de la unidad</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div style="background:rgba(61,214,140,.07);border:1px solid rgba(61,214,140,.2);border-radius:10px;padding:14px 18px;margin-top:12px">
+    <span style="font-family:'Outfit',sans-serif;font-weight:700;font-size:13px;color:var(--c2)">La ventaja única de este modelo</span>
+    <p style="font-size:13px;color:var(--dm);margin-top:5px;line-height:1.65">Aprendió de <strong style="color:var(--tx)">precios de cierre reales</strong>, no de precios de anuncio. La diferencia promedio entre precio de lista y precio de escritura en el mercado mexicano puede superar el 10%. Este modelo refleja lo que el comprador <em>realmente</em> pagó — una ventaja que ningún modelo basado en portales puede replicar.</p>
+  </div>
+
+  <hr>
+  <div class="sh">Precisión por plaza</div>
+  <div class="irow">
+    <div class="ins"><div class="iv" style="color:var(--c2)">3.6%</div><div class="it">Guadalajara · mayor historial disponible</div></div>
+    <div class="ins"><div class="iv" style="color:var(--c2)">4.8%</div><div class="it">Querétaro · buena precisión con historial creciente</div></div>
+    <div class="ins"><div class="iv" style="color:#FB923C">9.1%</div><div class="it">Puerto Vallarta · historial limitado, en proceso de mejora</div></div>
+  </div>
+
+  <hr>
+  <div class="sh">¿Para qué sirve en el negocio?</div>
+  <div class="ucards">
+    <div class="ucard"><span class="uico">🏷️</span><div class="utitle">Precio sugerido por unidad</div><p class="utxt">Precio de venta recomendado para cada unidad del inventario activo, basado en el historial real de proyectos comparables de TyA.</p></div>
+    <div class="ucard"><span class="uico">✅</span><div class="utitle">Validar estrategia de precios</div><p class="utxt">Comparar el precio de lista actual con el precio de cierre esperado para detectar sobreprecios que estén frenando ventas.</p></div>
+    <div class="ucard"><span class="uico">🤝</span><div class="utitle">Soporte en negociación</div><p class="utxt">Dar al equipo comercial respaldo de datos para defender un precio o calcular hasta dónde puede ceder según el historial del proyecto.</p></div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PANEL 3 · Holt-Winters
+════════════════════════════════════ -->
+<div class="panel" id="p3">
+<div class="inner">
+  <span class="mlabel" style="color:var(--c3)">Modelo 3 · Holt-Winters</span>
+  <div class="mtitle">¿Cómo evolucionarán el precio<br>y las ventas en los próximos meses?</div>
+  <p class="mdesc">Este modelo no analiza propiedades — analiza tendencias en el tiempo. Lee el historial de precios y ventas de cada proyecto y los proyecta hacia adelante detectando nivel actual, tendencia y ciclos estacionales.</p>
+
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:4px">
+    <div class="mcard">
+      <div class="mnum" style="color:var(--c3)">88%</div>
+      <div class="mlbl">Confianza promedio del modelo</div>
+      <div class="mctx">Decrece conforme la proyección se aleja en el tiempo</div>
+    </div>
+    <div class="mcard">
+      <div class="mnum" style="color:var(--c3)">+18.7%</div>
+      <div class="mlbl">Ejemplo de crecimiento anual estimado</div>
+      <div class="mctx">Output que el modelo genera por prototipo y proyecto</div>
+    </div>
+  </div>
+
+  <hr>
+  <div class="sh">¿Cómo funciona matemáticamente?</div>
+  <div class="math-box">
+    <div class="formula">P(t+h) = ( L_t  +  h × T_t )  ×  S_t(h)</div>
+    <p class="fcaption">A diferencia de XGBoost que analiza variables de la propiedad, Holt-Winters <strong style="color:var(--tx)">descompone</strong> la serie histórica de ventas en tres componentes independientes. No es una regresión sobre características — es un análisis de patrones temporales que se combinan para proyectar el futuro. Es el mismo tipo de modelo que usan bancos y aerolíneas para proyectar demanda.</p>
+    <div class="hw-decomp">
+      <div class="hw-comp">
+        <span class="hw-ico">📏</span>
+        <div class="hw-lbl">Nivel (L)</div>
+        <div class="hw-desc">¿Dónde está el precio o las ventas ahora mismo? Es la base desde donde parte la proyección.</div>
+      </div>
+      <div class="hw-comp">
+        <span class="hw-ico">📈</span>
+        <div class="hw-lbl">Tendencia (T)</div>
+        <div class="hw-desc">¿Está subiendo, bajando o estable? ¿A qué velocidad cambia mes a mes?</div>
+      </div>
+      <div class="hw-comp">
+        <span class="hw-ico">🔄</span>
+        <div class="hw-lbl">Estacional (S)</div>
+        <div class="hw-desc">¿Hay meses que históricamente siempre venden más o menos? El modelo los identifica y los incorpora.</div>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--dm);margin-top:12px">Ejemplo: si en enero siempre se vende un 15% más del promedio (S=1.15), el nivel actual es 30 ventas/mes y la tendencia es +0.5 ventas/mes, el modelo proyecta para abril: (30 + 3×0.5) × 1.15 = <strong style="color:var(--c3)">36 ventas</strong>.</p>
+  </div>
+
+  <hr>
+  <div class="sh">Variables que alimentan el modelo · organizadas por fuente</div>
+  <div class="src-grid">
+
+    <div class="src-card">
+      <div class="src-header"><span class="src-ico">📅</span><div><div class="src-name">ERP TyA — Serie histórica de precios</div><span class="stag tt">Temporal · 1 serie por prototipo</span></div></div>
+      <ul class="src-vars">
+        <li>Precio mediano mensual por prototipo y proyecto</li>
+        <li>Evolución histórica desde inicio de ventas del desarrollo</li>
+      </ul>
+    </div>
+
+    <div class="src-card">
+      <div class="src-header"><span class="src-ico">📦</span><div><div class="src-name">ERP TyA — Serie histórica de ventas</div><span class="stag tt">Temporal · 1 serie por proyecto</span></div></div>
+      <ul class="src-vars">
+        <li>Unidades vendidas por mes y por desarrollo</li>
+        <li>Velocidad de absorción histórica de cada proyecto</li>
+      </ul>
+    </div>
+
+    <div class="src-card">
+      <div class="src-header"><span class="src-ico">🔄</span><div><div class="src-name">Patrones derivados — Cálculo interno</div><span class="stag ts">Calculadas por el modelo</span></div></div>
+      <ul class="src-vars">
+        <li>Factores estacionales identificados por mes del año</li>
+        <li>Tasa de tendencia (apreciación/depreciación implícita)</li>
+        <li>Nivel base actualizado con cada nueva venta registrada</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <hr>
+  <div class="sh">¿Para qué sirve en el negocio?</div>
+  <div class="ucards">
+    <div class="ucard"><span class="uico">📋</span><div class="utitle">Tabla de absorción proyectada</div><p class="utxt">Estimar cuántas unidades se venderán por mes en cada proyecto para planear obra, personal de ventas y flujo de caja.</p></div>
+    <div class="ucard"><span class="uico">💹</span><div class="utitle">Crecimiento anual del precio</div><p class="utxt">Proyectar cuánto podría subir el precio de lista en los próximos 12 meses — argumento de valor para el cliente inversionista en sala de ventas.</p></div>
+    <div class="ucard"><span class="uico">⚠️</span><div class="utitle">Detectar proyectos en tendencia baja</div><p class="utxt">Identificar tempranamente qué proyectos muestran una curva de ventas a la baja para actuar antes de que el problema se agrave.</p></div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PANEL 4 · TOM
+════════════════════════════════════ -->
+<div class="panel" id="p4">
+<div class="inner">
+  <span class="mlabel" style="color:var(--c4)">Modelo 4 · XGBoost TOM</span>
+  <div class="mtitle">¿Cuánto tiempo tardará en<br>venderse esta unidad?</div>
+  <p class="mdesc">TOM viene de "Time on Market". Estudió 12,228 propiedades que ya completaron su ciclo de venta y aprendió qué factores distinguen a las que se venden rápido de las que se quedan meses o años en inventario.</p>
+
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:4px">
+    <div class="mcard">
+      <div class="mnum" style="color:var(--c4)">3 perfiles</div>
+      <div class="mlbl">Velocidad de absorción por unidad</div>
+      <div style="display:flex;gap:7px;margin-top:8px;flex-wrap:wrap">
+        <span style="background:rgba(61,214,140,.15);color:#3DD68C;font-size:11px;font-weight:600;padding:3px 10px;border-radius:16px">⚡ Rápida</span>
+        <span style="background:rgba(240,192,64,.15);color:var(--c1);font-size:11px;font-weight:600;padding:3px 10px;border-radius:16px">🕐 Media</span>
+        <span style="background:rgba(255,123,107,.15);color:var(--c4);font-size:11px;font-weight:600;padding:3px 10px;border-radius:16px">🐢 Lenta</span>
+      </div>
+    </div>
+    <div class="mcard">
+      <div class="mnum" style="color:var(--c4)">12,228</div>
+      <div class="mlbl">Propiedades de ciclo completo</div>
+      <div class="mctx">Con el tiempo real que tardaron en venderse</div>
+    </div>
+  </div>
+
+  <hr>
+  <div class="sh">¿Por qué no es una regresión lineal?</div>
+  <div class="math-box">
+    <div class="formula">log(TOM + 1) = f₁(x) + f₂(x) + ··· + f₅₀₀(x)</div>
+    <p class="fcaption">El tiempo en mercado tiene una distribución asimétrica (hay unas pocas propiedades que tardan años, pero la mayoría se vende en meses). El modelo aplica <strong style="color:var(--tx)">transformación logarítmica</strong> al objetivo para corregir esa asimetría antes de entrenar — técnica que ninguna regresión lineal simple puede hacer. Los 500 árboles aprenden sobre esa versión transformada y el resultado se convierte de vuelta a días reales.</p>
+    <p style="font-size:12px;color:var(--dm);margin-top:10px">⚠️ El predictor más importante no es la propiedad misma — es el comportamiento histórico de ventas de la competencia en su mismo barrio.</p>
+  </div>
+
+  <hr>
+  <div class="sh">Variables que alimentan el modelo · organizadas por fuente</div>
+  <div class="src-grid">
+
+    <div class="src-card">
+      <div class="src-header"><span class="src-ico">💲</span><div><div class="src-name">DD360 Mercado — Precio relativo</div><span class="stag tm">Precio vs. mercado · 3 vars</span></div></div>
+      <ul class="src-vars">
+        <li>Relación precio propiedad vs. mediana del barrio (predictor #1)</li>
+        <li>Precio por m² de la propiedad</li>
+        <li>Precio mediano del barrio de referencia</li>
+      </ul>
+    </div>
+
+    <div class="src-card">
+      <div class="src-header"><span class="src-ico">🏘️</span><div><div class="src-name">DD360 Mercado — Absorción del barrio</div><span class="stag tm">Contexto de absorción · 3 vars</span></div></div>
+      <ul class="src-vars">
+        <li>Tiempo mediano de venta de propiedades comparables en la zona</li>
+        <li>Número de listings competidores activos en el barrio</li>
+        <li>Velocidad histórica de absorción del mercado local</li>
+      </ul>
+    </div>
+
+    <div class="src-card">
+      <div class="src-header"><span class="src-ico">🏠</span><div><div class="src-name">Portales Inmobiliarios DD360</div><span class="stag tf">Características físicas · 4 vars</span></div></div>
+      <ul class="src-vars">
+        <li>Tipo: casa horizontal o departamento</li>
+        <li>Superficie en m²</li>
+        <li>Número de recámaras</li>
+        <li>Indicador de vivienda de interés social</li>
+      </ul>
+    </div>
+
+    <div class="src-card">
+      <div class="src-header"><span class="src-ico">👥</span><div><div class="src-name">CONEVAL</div><span class="stag ts">Sociodemográfico · 2 vars</span></div></div>
+      <ul class="src-vars">
+        <li>Índice de rezago social del municipio</li>
+        <li>Grado de marginación</li>
+      </ul>
+    </div>
+
+    <div class="src-card">
+      <div class="src-header"><span class="src-ico">🏪</span><div><div class="src-name">DENUE (INEGI)</div><span class="stag tu">Entorno urbano · 5 vars</span></div></div>
+      <ul class="src-vars">
+        <li>Densidad económica en 500m y 1km</li>
+        <li>Transporte público en 500m y 1km</li>
+        <li>Servicios educativos y comerciales en 500m</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <hr>
+  <div class="sh">Hallazgos clave que encontró el modelo</div>
+  <div class="irow">
+    <div class="ins"><div class="iv" style="color:var(--c2)">40% más rápido</div><div class="it">Propiedades subpreciadas vs. el barrio se venden hasta 40% más rápido</div></div>
+    <div class="ins"><div class="iv" style="color:var(--c2)">14% más rápido</div><div class="it">Las casas horizontales se venden más rápido que departamentos equivalentes</div></div>
+    <div class="ins"><div class="iv" style="color:var(--c3)">El barrio define</div><div class="it">El predictor #1 es el TOM histórico de propiedades comparables en la misma zona</div></div>
+  </div>
+
+  <hr>
+  <div class="sh">¿Para qué sirve en el negocio?</div>
+  <div class="ucards">
+    <div class="ucard"><span class="uico">🚨</span><div class="utitle">Alertas de inventario en riesgo</div><p class="utxt">Identificar con anticipación qué unidades tienen mayor riesgo de quedarse mucho tiempo sin venderse para actuar antes.</p></div>
+    <div class="ucard"><span class="uico">💡</span><div class="utitle">Decisiones de descuento con datos</div><p class="utxt">Entender cuánto debe bajar el precio de una unidad para moverla de perfil "Lenta" a "Rápida" con base en el mercado real.</p></div>
+    <div class="ucard"><span class="uico">🎯</span><div class="utitle">Priorización comercial</div><p class="utxt">Dirigir el esfuerzo del equipo de ventas hacia unidades con mayor riesgo de estancarse, no solo las más fáciles de colocar.</p></div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PANEL 5 · Fundamentos
+════════════════════════════════════ -->
+<div class="panel" id="p5">
+<div class="inner">
+  <span class="mlabel" style="color:var(--c5)">Fundamentos</span>
+  <div class="mtitle">¿Qué hace diferente a estos modelos<br>de una regresión lineal?</div>
+  <p class="mdesc">Aquí mostramos visualmente la diferencia entre el modelo más simple que existe y lo que hacen XGBoost y Holt-Winters. Los datos del gráfico son precio de vivienda vs. superficie (datos ilustrativos con escala real).</p>
+
+  <hr>
+  <div class="sh">1. Regresión lineal — el punto de partida histórico</div>
+  <p style="font-size:14px;color:var(--dm);line-height:1.65;margin-bottom:18px;max-width:700px">Una regresión lineal asume que la relación entre cada variable y el precio es siempre la misma: <em>"por cada m² adicional el precio sube $X"</em>, sin importar si la propiedad está en Zapopan o en Vallarta, si es de interés social o residencial. Esa línea recta es la mejor aproximación posible con una sola ecuación. El problema es que el mercado no es lineal.</p>
+
+  <div class="chart-row">
+    <div>
+      <div class="chart-head" style="color:var(--c3)">Regresión Lineal</div>
+      <div class="chart-wrap"><svg id="svg-reg" viewBox="0 0 340 230" xmlns="http://www.w3.org/2000/svg"></svg></div>
+      <div class="chart-cap">Una sola ecuación · Una sola pendiente para todo el mercado · Los errores (líneas rojas) son grandes y sistemáticos</div>
+      <div class="chart-r2" style="color:var(--c4)">R² ≈ 0.82 · MAPE ≈ 18%</div>
+    </div>
+    <div>
+      <div class="chart-head" style="color:var(--c2)">XGBoost (500 árboles)</div>
+      <div class="chart-wrap"><svg id="svg-xgb" viewBox="0 0 340 230" xmlns="http://www.w3.org/2000/svg"></svg></div>
+      <div class="chart-cap">500 correcciones iterativas · La curva se adapta a cada segmento del mercado · Los errores (líneas naranja) son mínimos</div>
+      <div class="chart-r2" style="color:var(--c2)">R² ≈ 0.97 · MAPE ≈ 4.5%</div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="lgnd-item"><div class="lgnd-dot" style="background:rgba(200,220,255,.8)"></div>Propiedad real (precio vs superficie)</div>
+    <div class="lgnd-item"><div class="lgnd-line" style="background:#5BB5F5"></div>Línea de regresión lineal</div>
+    <div class="lgnd-item"><div class="lgnd-line" style="background:#3DD68C"></div>Curva XGBoost (flexible)</div>
+    <div class="lgnd-item"><div class="lgnd-line" style="background:#FF7B6B;height:1px;border-top:2px dashed #FF7B6B;background:none"></div>Error de predicción (residual)</div>
+  </div>
+
+  <hr>
+  <div class="sh">2. ¿Qué es el gradient boosting?</div>
+  <p style="font-size:14px;color:var(--dm);line-height:1.65;margin-bottom:16px;max-width:700px">XGBoost usa una técnica llamada <strong style="color:var(--tx)">gradient boosting</strong>: en lugar de un modelo complejo, construye cientos de modelos simples (árboles de decisión) de forma secuencial. Cada uno aprende exclusivamente de los errores del anterior. El resultado final es la suma ponderada de todos.</p>
+  <div class="icards">
+    <div class="ic"><div class="ic-title">Árbol 1 — Estimación inicial</div><p class="ic-txt">Hace la primera predicción de precio. Es cruda con errores grandes, pero ya tiene una dirección. Como un valuador con poca experiencia.</p></div>
+    <div class="ic"><div class="ic-title">Árbol 2 — Primera corrección</div><p class="ic-txt">No predice el precio — predice el <em>error</em> que cometió el árbol anterior y lo añade a la predicción. Aprende solo de los fallos.</p></div>
+    <div class="ic"><div class="ic-title">Árboles 3–500 — Refinamiento</div><p class="ic-txt">Cada árbol nuevo corrige los errores residuales de todos los anteriores. Con 500 iteraciones los errores se vuelven muy pequeños.</p></div>
+  </div>
+
+  <hr>
+  <div class="sh">3. Holt-Winters — descomposición temporal</div>
+  <p style="font-size:14px;color:var(--dm);line-height:1.65;margin-bottom:16px;max-width:700px">Para proyectar tendencias en el tiempo, la regresión lineal asumiría que las ventas suben o bajan de forma constante. Holt-Winters descompone la historia en tres señales independientes y las recombina para proyectar el futuro.</p>
+  <div class="math-box">
+    <div class="formula">P(t+h) = ( L_t  +  h × T_t )  ×  S( h mod 12 )</div>
+    <p class="fcaption"><strong style="color:var(--tx)">L</strong> = Nivel actual · <strong style="color:var(--tx)">T</strong> = Tendencia (cambio por período) · <strong style="color:var(--tx)">S</strong> = Factor estacional del mes · <strong style="color:var(--tx)">h</strong> = Horizonte de predicción (meses hacia adelante)</p>
+    <p style="font-size:13px;color:var(--dm);margin-top:10px;line-height:1.6">Una regresión lineal solo puede ajustar una pendiente fija. Holt-Winters puede capturar que <em>siempre en noviembre venden más</em>, <em>la tendencia está acelerando</em>, y que <em>el nivel base cambió después de un ajuste de precios</em> — todo simultáneamente.</p>
+  </div>
+
+  <hr>
+  <div class="sh">4. ¿Cómo interactúan los 4 modelos en el SIM TyA?</div>
+  <p style="font-size:14px;color:var(--dm);line-height:1.65;margin-bottom:16px;max-width:700px">Cada modelo responde una pregunta distinta y aparece en un momento diferente del flujo comercial. No son intercambiables — son capas complementarias. El TOM es el único que consume datos de <em>dos</em> fuentes (DD360 + ERP TyA) porque necesita tanto el contexto del barrio como las características de la unidad.</p>
+
+  <div style="overflow-x:auto;margin-bottom:20px">
+  <table style="width:100%;border-collapse:collapse;font-size:13px;min-width:600px">
+    <thead>
+      <tr>
+        <th style="text-align:left;padding:9px 12px;border-bottom:1px solid var(--bd);color:var(--dm);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.1em;width:18%">Modelo</th>
+        <th style="text-align:left;padding:9px 12px;border-bottom:1px solid var(--bd);color:var(--dm);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.1em;width:20%">Fuente de datos</th>
+        <th style="text-align:left;padding:9px 12px;border-bottom:1px solid var(--bd);color:var(--dm);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.1em">¿Dónde aparece en el SIM TyA?</th>
+        <th style="text-align:left;padding:9px 12px;border-bottom:1px solid var(--bd);color:var(--dm);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.1em;width:24%">La pregunta que responde</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="background:rgba(240,192,64,.04)">
+        <td style="padding:10px 12px;border-bottom:1px solid var(--bd)"><span style="color:var(--c1);font-weight:700">① Precio Mercado</span></td>
+        <td style="padding:10px 12px;border-bottom:1px solid var(--bd);color:var(--dm)">DD360 listings (~80K propiedades)</td>
+        <td style="padding:10px 12px;border-bottom:1px solid var(--bd);color:var(--dm)">Análisis de competencia · Benchmark por colonia · Posicionamiento de nuevos proyectos</td>
+        <td style="padding:10px 12px;border-bottom:1px solid var(--bd);color:var(--dm)">¿Cuánto paga el mercado abierto por esta propiedad?</td>
+      </tr>
+      <tr style="background:rgba(61,214,140,.04)">
+        <td style="padding:10px 12px;border-bottom:1px solid var(--bd)"><span style="color:var(--c2);font-weight:700">② Precio TyA</span></td>
+        <td style="padding:10px 12px;border-bottom:1px solid var(--bd);color:var(--dm)">ERP TyA (25K escrituras 2004–2026)</td>
+        <td style="padding:10px 12px;border-bottom:1px solid var(--bd);color:var(--dm)">Tabla de inventario activo · Personalizador de precio · Soporte a negociación</td>
+        <td style="padding:10px 12px;border-bottom:1px solid var(--bd);color:var(--dm)">¿A cuánto puede vender TyA esta unidad?</td>
+      </tr>
+      <tr style="background:rgba(91,181,245,.04)">
+        <td style="padding:10px 12px;border-bottom:1px solid var(--bd)"><span style="color:var(--c3);font-weight:700">③ Proyección HW</span></td>
+        <td style="padding:10px 12px;border-bottom:1px solid var(--bd);color:var(--dm)">ERP TyA (serie histórica mensual)</td>
+        <td style="padding:10px 12px;border-bottom:1px solid var(--bd);color:var(--dm)">Vista de absorción proyectada · Tabla de unidades por mes · Crecimiento anual estimado</td>
+        <td style="padding:10px 12px;border-bottom:1px solid var(--bd);color:var(--dm)">¿Cuántas unidades se venderán en los próximos meses?</td>
+      </tr>
+      <tr style="background:rgba(255,123,107,.04)">
+        <td style="padding:10px 12px"><span style="color:var(--c4);font-weight:700">④ TOM</span></td>
+        <td style="padding:10px 12px;color:var(--dm)">DD360 (contexto barrio) + ERP TyA (precio vs. mercado)</td>
+        <td style="padding:10px 12px;color:var(--dm)">Badge Rápida/Media/Lenta en cada unidad · Alertas de inventario · Priorización comercial</td>
+        <td style="padding:10px 12px;color:var(--dm)">¿Esta unidad se venderá rápido o se quedará mucho tiempo?</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div style="background:var(--cd);border:1px solid var(--bd);border-radius:14px;padding:18px 20px;margin-bottom:4px">
+    <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px">① Precio Mercado vs. ② Precio TyA — ¿cuándo usar cada uno?</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div>
+        <div style="color:var(--c1);font-weight:600;font-size:12.5px;margin-bottom:7px">① Precio Mercado (DD360) — referencia externa</div>
+        <ul style="list-style:none;padding:0;font-size:12.5px;color:var(--dm);line-height:1.55">
+          <li style="padding:3px 0;border-bottom:.5px solid rgba(255,255,255,.05)">→ Cuando quieres saber qué pagaría el mercado por cualquier propiedad</li>
+          <li style="padding:3px 0;border-bottom:.5px solid rgba(255,255,255,.05)">→ Para analizar precios de la competencia por zona o colonia</li>
+          <li style="padding:3px 0;border-bottom:.5px solid rgba(255,255,255,.05)">→ Para posicionar un nuevo proyecto antes de definir precios de lista</li>
+          <li style="padding:3px 0">→ Para calcular cuánto está por arriba o abajo del mercado el precio TyA</li>
+        </ul>
+      </div>
+      <div>
+        <div style="color:var(--c2);font-weight:600;font-size:12.5px;margin-bottom:7px">② Precio TyA — recomendación interna</div>
+        <ul style="list-style:none;padding:0;font-size:12.5px;color:var(--dm);line-height:1.55">
+          <li style="padding:3px 0;border-bottom:.5px solid rgba(255,255,255,.05)">→ Cuando necesitas el precio recomendado para una unidad específica del inventario TyA</li>
+          <li style="padding:3px 0;border-bottom:.5px solid rgba(255,255,255,.05)">→ Para validar si el precio de lista está alineado con el historial real de cierres</li>
+          <li style="padding:3px 0;border-bottom:.5px solid rgba(255,255,255,.05)">→ Para dar respaldo de datos en una negociación con un cliente</li>
+          <li style="padding:3px 0">→ Para revisar el margen implícito entre el precio TyA y el mercado abierto</li>
+        </ul>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--dm);margin-top:12px;border-top:1px solid var(--bd);padding-top:10px">Los dos modelos son complementarios, no sustitutos. El DD360 da el piso del mercado; el TyA lo traduce a una recomendación de precio real para el equipo de ventas. El TOM usa datos del DD360 para calcular el contexto del barrio de cada unidad.</p>
+  </div>
+
+  <hr>
+  <div class="sh">5. Holt-Winters: Suavizamiento Exponencial — no es ARIMA ni SVM</div>
+  <p style="font-size:14px;color:var(--dm);line-height:1.65;margin-bottom:16px;max-width:700px">Holt-Winters pertenece a la familia de los <strong style="color:var(--tx)">modelos de Suavizamiento Exponencial (ETS: Error, Trend, Seasonality)</strong>. No es ni ARIMA ni SVM — es una familia distinta diseñada específicamente para series con tendencia y estacionalidad.</p>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:20px">
+    <div style="background:var(--cd);border:1px solid rgba(91,181,245,.35);border-radius:12px;padding:16px">
+      <div style="color:var(--c3);font-family:'Outfit',sans-serif;font-weight:700;font-size:13px;margin-bottom:6px">Holt-Winters / ETS ← este</div>
+      <p style="font-size:12px;color:var(--dm);line-height:1.55">Descompone la serie en Nivel + Tendencia + Estacionalidad y proyecta combinándolos. Parámetros α, β, γ controlan el peso de lo reciente vs. lo histórico. <strong style="color:var(--tx)">Muy interpretable y eficiente en datos cortos.</strong></p>
+    </div>
+    <div style="background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:16px">
+      <div style="color:var(--dm);font-family:'Outfit',sans-serif;font-weight:700;font-size:13px;margin-bottom:6px">ARIMA</div>
+      <p style="font-size:12px;color:var(--dm);line-height:1.55">Modela las correlaciones estadísticas entre observaciones consecutivas (autocorrelaciones). No descompone en componentes interpretables. Requiere series más largas y más ajuste manual. Mejor para series sin estacionalidad clara.</p>
+    </div>
+    <div style="background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:16px">
+      <div style="color:var(--dm);font-family:'Outfit',sans-serif;font-weight:700;font-size:13px;margin-bottom:6px">SVM</div>
+      <p style="font-size:12px;color:var(--dm);line-height:1.55">Algoritmo de clasificación/regresión para datos de corte transversal (muchas propiedades en un momento). No fue diseñado para series en el tiempo. Es el tipo de modelo que usan DD360 y TOM, no para proyecciones de absorción.</p>
+    </div>
+  </div>
+
+  <div class="math-box">
+    <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:13px;margin-bottom:10px;color:var(--tx)">Las 3 ecuaciones de actualización — versión multiplicativa</div>
+    <div class="formula">Nivel:      L_t = α · (y_t / S_{t-m})      + (1−α) · (L_{t-1} + T_{t-1})</div>
+    <div class="formula">Tendencia:  T_t = β · (L_t − L_{t-1})      + (1−β) · T_{t-1}</div>
+    <div class="formula">Estacional: S_t = γ · (y_t / L_t)          + (1−γ) · S_{t-m}</div>
+    <div class="formula" style="margin-top:4px">Pronóstico: ŷ_{t+h} = (L_t  +  h · T_t)  ×  S_{t-m+h}</div>
+    <p class="fcaption" style="margin-top:12px"><strong style="color:var(--tx)">α, β, γ ∈ [0, 1]</strong> son los parámetros que el modelo aprende minimizando el error cuadrático sobre el historial de entrenamiento. Un α cercano a 1 = el modelo reacciona rápido a cambios recientes; cercano a 0 = pesa más el historial largo. Cada proyecto/prototipo tiene su propio juego de parámetros aprendidos de forma independiente — por eso el modelo puede capturar que un desarrollo en PV tiene estacionalidad diferente a uno en GDL.</p>
+  </div>
+
+  <hr>
+  <div class="sh">6. XGBoost TOM: Descenso por gradiente sobre árboles de decisión</div>
+  <p style="font-size:14px;color:var(--dm);line-height:1.65;margin-bottom:16px;max-width:700px">El nombre <em>gradient boosting</em> no es metáfora — viene literalmente del cálculo. Cada árbol nuevo "desciende por el gradiente" de la función de error, aprendiendo exactamente en qué dirección y magnitud corregir el modelo anterior. Para TOM hay una capa adicional: se aplica una transformación logarítmica antes de entrenar.</p>
+
+  <div class="math-box" style="margin-bottom:14px">
+    <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:13px;margin-bottom:10px;color:var(--tx)">La función objetivo que minimiza XGBoost en cada ronda</div>
+    <div class="formula">Obj = Σᵢ L(yᵢ, ŷᵢ)  +  Σₖ Ω(fₖ)</div>
+    <p class="fcaption">El primer término <strong style="color:var(--tx)">Σ L</strong> mide el error de predicción. El segundo término <strong style="color:var(--tx)">Σ Ω</strong> penaliza la complejidad de los árboles — sin él, el modelo memorizaría los datos de entrenamiento. El balance entre ambos es lo que hace a XGBoost robusto en datos reales con ruido.</p>
+    <div class="formula" style="margin-top:10px">Árbol nuevo fₖ minimiza: Σᵢ [ gᵢ · fₖ(xᵢ)  +  ½ hᵢ · fₖ(xᵢ)² ]  +  Ω(fₖ)</div>
+    <p class="fcaption" style="margin-top:8px"><strong style="color:var(--tx)">gᵢ = ∂L/∂ŷᵢ</strong> (gradiente: la dirección y magnitud del error) · <strong style="color:var(--tx)">hᵢ = ∂²L/∂ŷᵢ²</strong> (curvatura: cuánta confianza tiene el gradiente). Para error cuadrático estándar: gᵢ = ŷᵢ − yᵢ, que es exactamente el residual — por eso la analogía "cada árbol aprende del error del anterior" es matemáticamente precisa.</p>
+  </div>
+
+  <div class="math-box">
+    <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:13px;margin-bottom:10px;color:var(--tx)">Por qué TOM aplica transformación logarítmica antes de entrenar</div>
+    <div class="formula">Target original: TOM ∈ [0, +∞)   →  Distribución muy asimétrica (cola larga)</div>
+    <div class="formula">Transformación:  z = log(TOM + 1)  →  Distribución más simétrica y estable</div>
+    <div class="formula">Al predecir:     TOM_pred = exp(ẑ) − 1</div>
+    <p class="fcaption" style="margin-top:10px">Sin la transformación, las pocas propiedades que tardan 3-5 años dominarían el entrenamiento y el modelo sobreajustaría hacia esos casos atípicos. El <strong style="color:var(--tx)">+1</strong> evita log(0) para propiedades vendidas el mismo día de publicación. La salida final (Rápida / Media / Lenta) se obtiene aplicando umbrales de percentil sobre el TOM_pred — no es una regresión puntual sino una clasificación de riesgo relativo.</p>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════════════════════════════
+     ÁREAS DE OPORTUNIDAD (sección fija)
+════════════════════════════════════ -->
+<div class="opp-sec">
+<div class="opp-inner">
+
+  <span class="ey" style="color:var(--c5)">Evaluación técnica · Abril 2026</span>
+  <div class="opp-title" style="background:linear-gradient(135deg,#F0F4F8,#A78BFA);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Propuestas para hacer<br>los modelos más precisos</div>
+  <p class="opp-sub">Áreas de oportunidad identificadas durante la revisión técnica de los cuatro modelos. Organizadas en mejoras transversales (aplican a todos) y específicas por modelo.</p>
+
+  <div class="sh" style="margin-top:28px">Aplican a todos los modelos</div>
+  <div class="opp-global">
+    <ul class="opp-list">
+      <li><strong style="color:var(--tx)">Validación cronológica (time-based split):</strong> Entrenar con datos históricos y evaluar en el periodo más reciente, no con split aleatorio. El conjunto de prueba actual puede contener ventas de 2010 mezcladas con ventas de 2024, lo que infla artificialmente las métricas de error reportadas.</li>
+      <li><strong style="color:var(--tx)">Intervalos de predicción individuales:</strong> Reemplazar la confianza global fija (97.5%) por rangos de precio calculados por unidad vía regresión por cuantiles — técnica que XGBoost soporta de forma nativa. Una unidad en GDL con 50 comparables tiene más certeza que una en PV con 3; mostrarle al usuario el mismo intervalo a ambas es engañoso.</li>
+      <li><strong style="color:var(--tx)">Dataset de elasticidad precio-demanda:</strong> Construir y compartir un historial de precio de lista mensual por prototipo, cruzado con las ventas reales del mismo periodo. Actualmente TyA comparte escrituras pero no el historial de precio de lista a lo largo del tiempo. Esto impide que los modelos aprendan cuánto caen las ventas cuando sube el precio — la señal más valiosa para optimizar pricing.</li>
+      <li><strong style="color:var(--tx)">Monitoreo de degradación en producción:</strong> Un modelo que hoy tiene MAPE de 4.5% puede degradarse con el tiempo conforme el mercado cambia. Implementar alertas automáticas cuando el error en producción se aleje del error de entrenamiento para saber cuándo reentrenar.</li>
+    </ul>
+  </div>
+
+  <div class="sh">Específicas por modelo</div>
+  <div class="opp-grid">
+
+    <div class="opp-card">
+      <span class="opp-mod" style="background:rgba(61,214,140,.12);color:#3DD68C;border-color:rgba(61,214,140,.3)">② Precio TyA</span>
+      <div class="opp-head">4 mejoras de alto impacto</div>
+      <ul class="opp-list">
+        <li><strong style="color:var(--tx)">Ajuste inflacionario a las escrituras:</strong> Con 22 años de datos en pesos nominales (inflación acumulada ~220%), una escritura de $500K en 2004 y una de $500K en 2026 pesan igual en el modelo. Normalizar con INPC antes de entrenar, tal como ya se hace en el modelo DD360.</li>
+        <li><strong style="color:var(--tx)">Incorporar señales de absorción:</strong> Unidades disponibles del prototipo y velocidad de ventas del desarrollo como variables del modelo de precio. Un prototipo con 2 unidades restantes puede sostener un precio que uno con 50 no puede.</li>
+        <li><strong style="color:var(--tx)">Activar variables del ERP aún inactivas:</strong> Precio de lista vigente, avance de obra, tipo de venta (contado / hipotecario / preventa) y metros de frente del lote existen en el ERP de TyA y no están activos en el modelo actual.</li>
+        <li><strong style="color:var(--tx)">Segmentar Cancún por sus dinámicas propias:</strong> Demanda turística, compradores foráneos y referencias de precio en dólares hacen que extrapolar desde GDL/QRO sea inapropiado. Con las ventas de Kulkana y Greenwood más datos de mercado de Quintana Roo se puede entrenar una versión específica.</li>
+      </ul>
+    </div>
+
+    <div class="opp-card">
+      <span class="opp-mod" style="background:rgba(240,192,64,.12);color:#E8B84B;border-color:rgba(240,192,64,.3)">① Precio Mercado</span>
+      <div class="opp-head">4 mejoras de alto impacto</div>
+      <ul class="opp-list">
+        <li><strong style="color:var(--tx)">Auditar el 50% de listings excluidos:</strong> La mitad de los 81,466 listings fue excluida por falta de coordenadas. Si ese grupo se concentra en zonas periféricas o de interés social, el modelo tiene un sesgo hacia zonas con mejor geodata — exactamente las que TyA no atiende en todos sus proyectos.</li>
+        <li><strong style="color:var(--tx)">Desglosar MAPE por tipo y segmento de precio:</strong> El error solo se reporta por ciudad. Un desglose por tipo de propiedad y rango de precio revelaría en qué segmentos el modelo es más débil.</li>
+        <li><strong style="color:var(--tx)">Monitoreo de fuentes externas en producción:</strong> Con 10 fuentes integradas, si alguna falla sus variables se imputan con cero sin alerta. Un log de calidad de datos por fuente en cada ejecución evitaría predicciones silenciosamente degradadas.</li>
+        <li><strong style="color:var(--tx)">Integrar FlexMLS para Puerto Vallarta:</strong> Esta fuente está disponible en el diccionario del proyecto y contiene precios reales de cierre en el mercado de PV — plaza donde el modelo actualmente tiene MAPE de 9.1%.</li>
+      </ul>
+    </div>
+
+    <div class="opp-card">
+      <span class="opp-mod" style="background:rgba(91,181,245,.12);color:#5BB5F5;border-color:rgba(91,181,245,.3)">③ Proyección HW</span>
+      <div class="opp-head">3 mejoras prioritarias</div>
+      <ul class="opp-list">
+        <li><strong style="color:var(--tx)">Intervalos estadísticos formales:</strong> La confianza actual se calcula como un decaimiento fijo del 2% por mes sobre el MAPE, sin fundamento probabilístico. Usar los intervalos de predicción que genera el propio modelo estadístico da al usuario una señal de incertidumbre real.</li>
+        <li><strong style="color:var(--tx)">Umbral mínimo de historia documentado:</strong> Proyectos con menos de 6-8 meses de ventas producen proyecciones inestables. Definir el mínimo requerido y activar una advertencia visible en el dashboard cuando no se cumple.</li>
+        <li><strong style="color:var(--tx)">MAPE desglosado por horizonte de proyección:</strong> El error de 11.9% es un promedio global. Reportar por horizonte (1 mes / 3 meses / 6 meses / 12 meses) para que el usuario sepa qué tan confiable es la proyección según qué tan lejos está mirando.</li>
+      </ul>
+    </div>
+
+    <div class="opp-card">
+      <span class="opp-mod" style="background:rgba(255,123,107,.12);color:#FF7B6B;border-color:rgba(255,123,107,.3)">④ Velocidad Venta TOM</span>
+      <div class="opp-head">3 mejoras prioritarias</div>
+      <ul class="opp-list">
+        <li><strong style="color:var(--tx)">Incorporar el mes de publicación:</strong> El mes en que se pone en venta una propiedad afecta su absorción (enero-febrero con aguinaldos, noviembre con Buen Fin vs. agosto con vacaciones). Es la mejora de mayor impacto disponible con el menor esfuerzo de implementación.</li>
+        <li><strong style="color:var(--tx)">Variables de Salesforce cuando estén disponibles:</strong> Canal de captación, número de visitas preventa y tipo de crédito del comprador son predictores fuertes del tiempo de venta. Estos datos ya existen en el CRM de TyA y aún no se comparten con el proveedor.</li>
+        <li><strong style="color:var(--tx)">Integrar como alerta accionable en el SIM TYA:</strong> Los hallazgos del modelo (casas 14% más rápidas, precio vs. barrio como predictor #1) existen en documentación de investigación pero no se visualizan como alerta para el equipo comercial en el dashboard activo.</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<div style="text-align:center;padding:28px 24px;border-top:1px solid var(--bd);font-size:12px;color:var(--dm)">TyA · SIM Prot · Descripción general de modelos predictivos · Abril 2026 · Documento de uso interno</div>
+
+<script>
+function go(n){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelector('.tab[data-m="'+n+'"]').classList.add('on');
+  document.getElementById('p'+n).classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── Scatter plots ──
+const NS='http://www.w3.org/2000/svg';
+function svgEl(tag,attrs){const e=document.createElementNS(NS,tag);for(const[k,v]of Object.entries(attrs))e.setAttribute(k,v);return e;}
+function svgTxt(txt,attrs){const e=document.createElementNS(NS,'text');for(const[k,v]of Object.entries(attrs))e.setAttribute(k,v);e.textContent=txt;return e;}
+
+const pts=[[45,1.2],[50,1.6],[55,1.4],[58,1.9],[62,1.8],[65,2.1],[68,2.3],[72,2.1],[75,2.7],[78,2.5],[82,2.8],[85,2.7],[90,3.2],[95,3.0],[100,3.4],[105,3.5],[110,3.3],[115,3.8],[120,3.7],[125,4.1],[130,4.0]];
+const W=340,H=230,ml=46,mr=12,mt=12,mb=36,pw=W-ml-mr,ph=H-mt-mb;
+const sMin=40,sMax=135,pMin=0.8,pMax=4.6;
+const xp=s=>ml+(s-sMin)/(sMax-sMin)*pw;
+const yp=p=>mt+ph-(p-pMin)/(pMax-pMin)*ph;
+const lreg=s=>0.164+0.028*s;
+const lxgb=s=>lreg(s)+0.19*Math.sin((s-40)/95*Math.PI)-0.06;
+
+function drawChart(id,mode){
+  const svg=document.getElementById(id);
+  if(!svg)return;
+  svg.innerHTML='';
+  const gc='rgba(255,255,255,.05)',dc='#4A6A8A';
+
+  // Grid & axes
+  [2,2.5,3,3.5,4].forEach(p=>{
+    const y=yp(p);
+    svg.appendChild(svgEl('line',{x1:ml,y1:y,x2:W-mr,y2:y,stroke:gc,'stroke-width':1}));
+    svg.appendChild(svgTxt('$'+p+'M',{x:ml-4,y:y+4,'text-anchor':'end','font-size':9,fill:dc,'font-family':'Inter,sans-serif'}));
+  });
+  [50,70,90,110,130].forEach(s=>{
+    const x=xp(s);
+    svg.appendChild(svgEl('line',{x1:x,y1:mt,x2:x,y2:mt+ph,stroke:gc,'stroke-width':1}));
+    svg.appendChild(svgTxt(s+'m²',{x:x,y:mt+ph+14,'text-anchor':'middle','font-size':9,fill:dc,'font-family':'Inter,sans-serif'}));
+  });
+  svg.appendChild(svgEl('line',{x1:ml,y1:mt,x2:ml,y2:mt+ph,stroke:dc,'stroke-width':1}));
+  svg.appendChild(svgEl('line',{x1:ml,y1:mt+ph,x2:W-mr,y2:mt+ph,stroke:dc,'stroke-width':1}));
+  svg.appendChild(svgTxt('Superficie (m²)',{x:ml+pw/2,y:H-2,'text-anchor':'middle','font-size':10,fill:'#5A7A9A','font-family':'Inter,sans-serif'}));
+
+  const fn=mode==='linear'?lreg:lxgb;
+  const lineColor=mode==='linear'?'#5BB5F5':'#3DD68C';
+
+  // Trend line / curve
+  if(mode==='linear'){
+    svg.appendChild(svgEl('line',{x1:ml,y1:yp(lreg(sMin)),x2:W-mr,y2:yp(lreg(sMax)),stroke:lineColor,'stroke-width':1.8,'stroke-opacity':0.85}));
+  } else {
+    const steps=[];
+    for(let s=sMin;s<=sMax;s+=2)steps.push([xp(s).toFixed(1),yp(lxgb(s)).toFixed(1)]);
+    const d=steps.map((p,i)=>(i===0?'M':'L')+p[0]+','+p[1]).join(' ');
+    svg.appendChild(svgEl('path',{d,stroke:lineColor,'stroke-width':1.8,fill:'none','stroke-opacity':0.85}));
+  }
+
+  // Residuals (selected points)
+  const ridx=[0,3,6,9,12,16,19];
+  const rColor=mode==='linear'?'rgba(255,100,80,0.75)':'rgba(255,180,60,0.55)';
+  const rW=mode==='linear'?1.6:0.9;
+  ridx.forEach(i=>{
+    const[s,p]=pts[i];
+    const px=xp(s),py=yp(p),py2=yp(fn(s));
+    svg.appendChild(svgEl('line',{x1:px,y1:py,x2:px,y2:py2,stroke:rColor,'stroke-width':rW,'stroke-dasharray':mode==='linear'?'3,2':'2,2'}));
+  });
+
+  // Data points
+  pts.forEach(([s,p])=>svg.appendChild(svgEl('circle',{cx:xp(s),cy:yp(p),r:3.5,fill:'rgba(200,220,255,0.75)',stroke:'rgba(255,255,255,0.25)','stroke-width':0.8})));
+}
+
+window.addEventListener('load',()=>{drawChart('svg-reg','linear');drawChart('svg-xgb','xgboost');});
+</script>
+</body>
+</html>
