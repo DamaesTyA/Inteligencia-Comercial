@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Extracción INEGI · Catálogo AGEB · SIM TYA</title>
+<style>
+  :root {
+    --navy:   #1C2B3A;
+    --green:  #2E6B45;
+    --green2: #3D8A59;
+    --gold:   #B8933A;
+    --goldlt: #F0E6C8;
+    --smoke:  #F4F2EE;
+    --white:  #FFFFFF;
+    --gray:   #8A8E94;
+    --border: #DDD9D2;
+    --text:   #2A2A2A;
+    --textlt: #5A5A5A;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--smoke);color:var(--text);font-size:14px;line-height:1.5;}
+
+  /* HEADER */
+  .header{background:var(--navy);padding:44px 60px 36px;position:relative;overflow:hidden;}
+  .header::before{content:'';position:absolute;top:0;right:0;width:400px;height:100%;
+    background:repeating-linear-gradient(0deg,transparent,transparent 28px,rgba(255,255,255,.035) 28px,rgba(255,255,255,.035) 29px),
+    repeating-linear-gradient(90deg,transparent,transparent 28px,rgba(255,255,255,.035) 28px,rgba(255,255,255,.035) 29px);}
+  .htag{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:12px;}
+  .header h1{font-size:30px;font-weight:300;color:#fff;line-height:1.2;max-width:600px;margin-bottom:8px;}
+  .header h1 strong{font-weight:700;}
+  .hsub{color:rgba(255,255,255,.5);font-size:13px;max-width:520px;margin-top:8px;}
+  .hmeta{margin-top:24px;display:flex;gap:28px;flex-wrap:wrap;}
+  .hmi label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.35);display:block;margin-bottom:2px;}
+  .hmi span{font-size:13px;color:rgba(255,255,255,.82);font-weight:500;}
+
+  /* PAGE */
+  .page{max-width:1100px;margin:0 auto;padding:44px 32px 80px;}
+  .sec{margin-bottom:48px;}
+  .slabel{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--green);font-weight:700;margin-bottom:8px;}
+  .sec h2{font-size:20px;font-weight:600;color:var(--navy);margin-bottom:8px;}
+  .slead{font-size:14px;color:var(--textlt);max-width:720px;line-height:1.7;}
+  hr.div{border:none;border-top:1px solid var(--border);margin:36px 0;}
+
+  /* STATS */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:24px 0;}
+  .scard{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:20px;text-align:center;}
+  .snum{font-size:34px;font-weight:700;color:var(--navy);line-height:1;margin-bottom:4px;}
+  .snum em{font-size:18px;color:var(--green);font-style:normal;}
+  .sdesc{font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;line-height:1.4;}
+
+  /* ZONAS */
+  .zgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px;}
+  .zcard{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+  .zhead{padding:16px 20px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;}
+  .zname{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:2px;}
+  .zest{font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;}
+  .zbadge{background:var(--goldlt);color:var(--gold);font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;}
+  .zbody{padding:14px 20px 18px;}
+  .mlist{list-style:none;display:flex;flex-direction:column;gap:6px;}
+  .mlist li{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--textlt);}
+  .mlist li::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green2);flex-shrink:0;}
+  .mcode{font-family:'Consolas',monospace;font-size:10px;background:#F0F0F0;color:var(--gray);padding:1px 5px;border-radius:3px;margin-left:auto;}
+
+  /* ENTIDADES */
+  .egrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px;}
+  .ecard{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px 18px;}
+  .eclave{font-family:'Consolas',monospace;font-size:26px;font-weight:700;color:var(--green);line-height:1;margin-bottom:4px;}
+  .enombre{font-size:13px;font-weight:600;color:var(--navy);}
+  .edesc{font-size:11px;color:var(--gray);margin-top:2px;}
+
+  /* FUENTE */
+  .fbox{background:var(--navy);border-radius:10px;padding:26px 28px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-top:20px;}
+  .flabel{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.38);margin-bottom:5px;}
+  .fvalue{font-size:13.5px;font-weight:500;color:rgba(255,255,255,.88);line-height:1.5;}
+
+  /* CATÁLOGO */
+  .cat-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px;}
+  .search-box{flex:1;min-width:200px;max-width:340px;position:relative;}
+  .search-box input{width:100%;padding:9px 12px 9px 36px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--white);color:var(--text);outline:none;}
+  .search-box input:focus{border-color:var(--green);}
+  .search-box::before{content:'⌕';position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--gray);font-size:16px;}
+  .cat-filters{display:flex;gap:6px;flex-wrap:wrap;}
+  .cf{padding:6px 12px;border-radius:20px;border:1px solid var(--border);background:var(--white);font-size:12px;cursor:pointer;color:var(--textlt);transition:.15s;}
+  .cf:hover{border-color:var(--green);color:var(--green);}
+  .cf.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .cat-count{font-size:12px;color:var(--gray);margin-left:auto;white-space:nowrap;}
+
+  /* TABLE */
+  .tbl-wrap{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+  table{width:100%;border-collapse:collapse;}
+  thead tr{background:var(--navy);}
+  thead th{padding:11px 14px;text-align:left;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.6);font-weight:600;white-space:nowrap;}
+  tbody tr{border-bottom:1px solid var(--border);}
+  tbody tr:last-child{border-bottom:none;}
+  tbody tr:hover{background:#F8F7F4;}
+  tbody tr.tya-row{background:#FFFDF5;}
+  tbody tr.tya-row:hover{background:#FFF8E1;}
+  td{padding:9px 14px;font-size:12.5px;vertical-align:middle;}
+  td.num{color:var(--gray);font-size:11px;font-family:'Consolas',monospace;width:42px;}
+  td.code{font-family:'Consolas',monospace;font-size:12px;font-weight:700;color:var(--navy);white-space:nowrap;}
+  td.desc{color:var(--textlt);line-height:1.4;}
+  td.cat-cell{white-space:nowrap;}
+
+  .cat-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;letter-spacing:.04em;white-space:nowrap;}
+  .cat-GEO  {background:#E3F2FD;color:#1565C0;}
+  .cat-POB  {background:#E8F5E9;color:#2E7D32;}
+  .cat-FEC  {background:#F3E5F5;color:#6A1B9A;}
+  .cat-MIG  {background:#FFF3E0;color:#E65100;}
+  .cat-ETN  {background:#FCE4EC;color:#880E4F;}
+  .cat-DIS  {background:#E0F7FA;color:#00695C;}
+  .cat-EDU  {background:#E8EAF6;color:#283593;}
+  .cat-ECO  {background:#FFF9C4;color:#827717;}
+  .cat-SAL  {background:#FFEBEE;color:#B71C1C;}
+  .cat-CON  {background:#F1F8E9;color:#33691E;}
+  .cat-REL  {background:#EDE7F6;color:#4527A0;}
+  .cat-HOG  {background:#E0F2F1;color:#004D40;}
+  .cat-VIV  {background:#FBE9E7;color:#BF360C;}
+
+  .tya-badge{background:var(--goldlt);color:var(--gold);font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;letter-spacing:.03em;}
+  .inegi-badge{background:#F0F0F0;color:#777;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;}
+
+  .no-results{padding:40px;text-align:center;color:var(--gray);font-size:14px;}
+
+  /* INTERPRETACIÓN */
+  .icard{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:10px;display:grid;grid-template-columns:36px 1fr;gap:12px;}
+  .inum{font-size:18px;font-weight:700;color:var(--green);}
+  .ititle{font-size:13.5px;font-weight:600;color:var(--navy);margin-bottom:3px;}
+  .ibody{font-size:13px;color:var(--textlt);line-height:1.6;}
+  code{font-family:'Consolas',monospace;background:#F0F0F0;padding:1px 5px;border-radius:3px;font-size:11.5px;color:var(--navy);}
+
+  /* PRÓXIMOS PASOS */
+  .ncard{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:10px;display:grid;grid-template-columns:28px 1fr;gap:12px;}
+  .narr{font-size:18px;font-weight:700;color:var(--gold);}
+
+  /* FOOTER */
+  .footer{background:var(--navy);padding:22px 60px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+  .fl{color:rgba(255,255,255,.48);font-size:11.5px;}
+  .fl strong{color:rgba(255,255,255,.82);}
+  .fr{color:rgba(255,255,255,.3);font-size:11px;text-align:right;}
+
+  @media(max-width:700px){
+    .header{padding:28px 20px;}
+    .page{padding:28px 16px 60px;}
+    .stats,.zgrid,.egrid,.fbox{grid-template-columns:1fr;}
+    .footer{padding:18px 20px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="htag">SIM TYA · Sprint 2 · Discovery Capa 2 · Fuente INEGI</div>
+  <h1>Catálogo de variables <strong>AGEB</strong><br>Extracción CPV 2020 — Plazas objetivo</h1>
+  <p class="hsub">Información sociodemográfica oficial del Censo de Población y Vivienda 2020 desagregada a nivel de Área Geoestadística Básica para cuatro zonas de interés comercial.</p>
+  <div class="hmeta">
+    <div class="hmi"><label>Fuente</label><span>INEGI · CPV 2020 · SCITEL</span></div>
+    <div class="hmi"><label>Responsable</label><span>Daniel Martínez</span></div>
+    <div class="hmi"><label>Extracción</label><span>Junio 2026</span></div>
+    <div class="hmi"><label>Vigencia del dato</label><span>CPV 2020 · Próxima actualización CPV 2030</span></div>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- STATS -->
+  <div class="sec">
+    <div class="slabel">Alcance de la extracción</div>
+    <h2>Resumen de cobertura</h2>
+    <div class="stats">
+      <div class="scard"><div class="snum">4</div><div class="sdesc">Zonas metropolitanas</div></div>
+      <div class="scard"><div class="snum">9</div><div class="sdesc">Municipios cubiertos</div></div>
+      <div class="scard"><div class="snum">222</div><div class="sdesc">Variables por AGEB</div></div>
+      <div class="scard"><div class="snum">~2<em>,700</em></div><div class="sdesc">AGEBs urbanos totales</div></div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- ZONAS -->
+  <div class="sec">
+    <div class="slabel">Cobertura geográfica</div>
+    <h2>Zonas y municipios incluidos</h2>
+    <p class="slead">Cada zona agrupa los municipios que integran la mancha urbana del mercado. En el caso de Puerto Vallarta, la zona metropolitana real cruza la frontera estatal hacia Nayarit, por lo que se consolidaron ambos municipios en un solo conjunto.</p>
+    <div class="zgrid">
+      <div class="zcard">
+        <div class="zhead"><div><div class="zname">Zona Metropolitana de Guadalajara</div><div class="zest">Jalisco · Clave estado 14</div></div><div class="zbadge">ZMG</div></div>
+        <div class="zbody"><ul class="mlist">
+          <li>Guadalajara<span class="mcode">039</span></li>
+          <li>Zapopan<span class="mcode">120</span></li>
+          <li>San Pedro Tlaquepaque<span class="mcode">098</span></li>
+          <li>Tonalá<span class="mcode">101</span></li>
+          <li>Tlajomulco de Zúñiga<span class="mcode">097</span></li>
+        </ul></div>
+      </div>
+      <div class="zcard">
+        <div class="zhead"><div><div class="zname">Zona Puerto Vallarta</div><div class="zest">Jalisco (14) + Nayarit (18)</div></div><div class="zbadge">PV</div></div>
+        <div class="zbody"><ul class="mlist">
+          <li>Puerto Vallarta · Jalisco<span class="mcode">14·067</span></li>
+          <li>Bahía de Banderas · Nayarit<span class="mcode">18·006</span></li>
+        </ul></div>
+      </div>
+      <div class="zcard">
+        <div class="zhead"><div><div class="zname">Querétaro</div><div class="zest">Querétaro · Clave estado 22</div></div><div class="zbadge">QRO</div></div>
+        <div class="zbody"><ul class="mlist"><li>Municipio de Querétaro<span class="mcode">014</span></li></ul></div>
+      </div>
+      <div class="zcard">
+        <div class="zhead"><div><div class="zname">Cancún</div><div class="zest">Quintana Roo · Clave estado 23</div></div><div class="zbadge">CUN</div></div>
+        <div class="zbody"><ul class="mlist"><li>Benito Juárez (Cancún)<span class="mcode">005</span></li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- ENTIDADES -->
+  <div class="sec">
+    <div class="slabel">Referencia</div>
+    <h2>Claves de entidad federativa INEGI</h2>
+    <p class="slead">Cada registro de la base lleva una clave de dos dígitos que identifica el estado de origen. Es el identificador primario para cualquier filtro o cruce geográfico.</p>
+    <div class="egrid">
+      <div class="ecard"><div class="eclave">14</div><div class="enombre">Jalisco</div><div class="edesc">ZMG + Puerto Vallarta</div></div>
+      <div class="ecard"><div class="eclave">18</div><div class="enombre">Nayarit</div><div class="edesc">Bahía de Banderas · Riviera Nayarit</div></div>
+      <div class="ecard"><div class="eclave">22</div><div class="enombre">Querétaro</div><div class="edesc">Ciudad de Querétaro</div></div>
+      <div class="ecard"><div class="eclave">23</div><div class="enombre">Quintana Roo</div><div class="edesc">Cancún · Benito Juárez</div></div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- FUENTE -->
+  <div class="sec">
+    <div class="slabel">Origen del dato</div>
+    <h2>Fuente oficial</h2>
+    <div class="fbox">
+      <div><div class="flabel">Programa</div><div class="fvalue">Censo de Población y Vivienda 2020 (CPV 2020)</div></div>
+      <div><div class="flabel">Sistema</div><div class="fvalue">SCITEL — Principales resultados por AGEB y manzana urbana · Tercera edición</div></div>
+      <div><div class="flabel">Vigencia</div><div class="fvalue">Dato más granular disponible a nivel AGEB. La Encuesta Intercensal 2025 (resultados sept. 2026) no desciende a este nivel. Siguiente actualización: CPV 2030.</div></div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- CATÁLOGO -->
+  <div class="sec">
+    <div class="slabel">Catálogo completo</div>
+    <h2>Variables disponibles por AGEB</h2>
+    <p class="slead" style="margin-bottom:20px;">Las 222 variables del CPV 2020 más las columnas de identificación de zona y ciudad incorporadas durante la extracción. Las filas en <span style="background:var(--goldlt);color:var(--gold);padding:1px 6px;border-radius:4px;font-size:12px;font-weight:600;">TYA</span> son columnas propias; el resto es información nativa de INEGI.</p>
+
+    <div class="cat-controls">
+      <div class="search-box"><input type="text" id="buscar" placeholder="Buscar mnemónico o descripción…" oninput="filtrar()"></div>
+      <div class="cat-filters" id="filtros"></div>
+      <span class="cat-count" id="conteo"></span>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Mnemónico</th>
+            <th>Descripción</th>
+            <th>Categoría</th>
+            <th>Origen</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-body"></tbody>
+      </table>
+      <div class="no-results" id="no-results" style="display:none;">Sin resultados para la búsqueda actual.</div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- INTERPRETACIÓN -->
+  <div class="sec">
+    <div class="slabel">Guía de lectura</div>
+    <h2>Cómo interpretar la base de datos</h2>
+    <div class="icard"><div class="inum">①</div><div>
+      <div class="ititle">Cada fila representa un micro-territorio, no una persona ni una vivienda</div>
+      <div class="ibody">Los valores son totales del polígono AGEB. Si <code>POBTOT = 4,821</code>, ese micro-vecindario tiene 4,821 habitantes. Si <code>VIVPAR_HAB = 1,433</code>, hay 1,433 viviendas habitadas dentro de ese polígono.</div>
+    </div></div>
+    <div class="icard"><div class="inum">②</div><div>
+      <div class="ititle">La combinación ENTIDAD + MUN + LOC + AGEB es la dirección única de cada registro</div>
+      <div class="ibody">La clave <code>14 · 039 · 0001 · 026A</code> apunta a un solo polígono en todo el país. Esta combinación permite cruzar la base tabular con la cartografía del Marco Geoestadístico para generar mapas y análisis espaciales.</div>
+    </div></div>
+    <div class="icard"><div class="inum">③</div><div>
+      <div class="ititle">Un asterisco (*) en una celda indica confidencialidad estadística, no un dato faltante</div>
+      <div class="ibody">INEGI suprime valores cuando el conteo es menor a 3 unidades, para proteger la privacidad de los hogares. El dato existe en el territorio pero no se publica a ese nivel de detalle.</div>
+    </div></div>
+    <div class="icard"><div class="inum">④</div><div>
+      <div class="ititle">Las columnas ZONA y CIUDAD son identificadores propios de esta extracción</div>
+      <div class="ibody">INEGI identifica por clave numérica de municipio. Las columnas <code>ZONA</code> y <code>CIUDAD</code> se incorporaron en el proceso de extracción para facilitar la navegación y el filtrado por mercado de interés.</div>
+    </div></div>
+  </div>
+
+
+</div>
+
+<div class="footer">
+  <div class="fl"><strong>Tierra y Armonía Construcción · Inteligencia Comercial</strong><br>Sprint 2 · SIM — Adición Capas de Información · Discovery Capa 2. Fuente INEGI</div>
+  <div class="fr">INEGI · Censo de Población y Vivienda 2020<br>SCITEL · Principales resultados por AGEB y manzana urbana · Tercera edición</div>
+</div>
+
+<script>
+const CATS = {
+  GEO:"Geografía", POB:"Población", FEC:"Fecundidad", MIG:"Migración",
+  ETN:"Etnicidad", DIS:"Discapacidad", EDU:"Educación", ECO:"Economía",
+  SAL:"Salud", CON:"Conyugal", REL:"Religión", HOG:"Hogares", VIV:"Vivienda"
+};
+
+const DATA = [
+  // ── GEOGRAFÍA (nativas INEGI) ────────────────────────────────────────
+  ["G1","ENTIDAD","Clave de entidad federativa (00 = total nacional)","GEO",false],
+  ["G2","NOM_ENT","Nombre oficial de la entidad federativa","GEO",false],
+  ["G3","MUN","Clave del municipio dentro de la entidad","GEO",false],
+  ["G4","NOM_MUN","Nombre oficial del municipio o demarcación territorial","GEO",false],
+  ["G5","LOC","Clave de localidad dentro del municipio","GEO",false],
+  ["G6","NOM_LOC","Nombre de la localidad","GEO",false],
+  ["G7","AGEB","Clave del AGEB urbano dentro de la localidad","GEO",false],
+  ["G8","MZA","Clave de manzana dentro del AGEB (000 = total AGEB)","GEO",false],
+  // ── GEOGRAFÍA (columnas TYA) ─────────────────────────────────────────
+  ["G9","ZONA","Zona de proyecto: ZMG / PV / QRO / CUN","GEO",true],
+  ["G10","CIUDAD","Nombre del municipio de la zona (p.ej. Guadalajara, Zapopan)","GEO",true],
+  // ── POBLACIÓN ────────────────────────────────────────────────────────
+  [1,"POBTOT","Población total","POB",false],
+  [2,"POBFEM","Población femenina","POB",false],
+  [3,"POBMAS","Población masculina","POB",false],
+  [4,"P_0A2","Población de 0 a 2 años","POB",false],
+  [5,"P_0A2_F","Mujeres de 0 a 2 años","POB",false],
+  [6,"P_0A2_M","Hombres de 0 a 2 años","POB",false],
+  [7,"P_3YMAS","Población de 3 años y más","POB",false],
+  [8,"P_3YMAS_F","Mujeres de 3 años y más","POB",false],
+  [9,"P_3YMAS_M","Hombres de 3 años y más","POB",false],
+  [10,"P_5YMAS","Población de 5 años y más","POB",false],
+  [11,"P_5YMAS_F","Mujeres de 5 años y más","POB",false],
+  [12,"P_5YMAS_M","Hombres de 5 años y más","POB",false],
+  [13,"P_12YMAS","Población de 12 años y más","POB",false],
+  [14,"P_12YMAS_F","Mujeres de 12 años y más","POB",false],
+  [15,"P_12YMAS_M","Hombres de 12 años y más","POB",false],
+  [16,"P_15YMAS","Población de 15 años y más","POB",false],
+  [17,"P_15YMAS_F","Mujeres de 15 años y más","POB",false],
+  [18,"P_15YMAS_M","Hombres de 15 años y más","POB",false],
+  [19,"P_18YMAS","Población de 18 años y más","POB",false],
+  [20,"P_18YMAS_F","Mujeres de 18 años y más","POB",false],
+  [21,"P_18YMAS_M","Hombres de 18 años y más","POB",false],
+  [22,"P_3A5","Población de 3 a 5 años","POB",false],
+  [23,"P_3A5_F","Mujeres de 3 a 5 años","POB",false],
+  [24,"P_3A5_M","Hombres de 3 a 5 años","POB",false],
+  [25,"P_6A11","Población de 6 a 11 años","POB",false],
+  [26,"P_6A11_F","Mujeres de 6 a 11 años","POB",false],
+  [27,"P_6A11_M","Hombres de 6 a 11 años","POB",false],
+  [28,"P_8A14","Población de 8 a 14 años","POB",false],
+  [29,"P_8A14_F","Mujeres de 8 a 14 años","POB",false],
+  [30,"P_8A14_M","Hombres de 8 a 14 años","POB",false],
+  [31,"P_12A14","Población de 12 a 14 años","POB",false],
+  [32,"P_12A14_F","Mujeres de 12 a 14 años","POB",false],
+  [33,"P_12A14_M","Hombres de 12 a 14 años","POB",false],
+  [34,"P_15A17","Población de 15 a 17 años","POB",false],
+  [35,"P_15A17_F","Mujeres de 15 a 17 años","POB",false],
+  [36,"P_15A17_M","Hombres de 15 a 17 años","POB",false],
+  [37,"P_18A24","Población de 18 a 24 años","POB",false],
+  [38,"P_18A24_F","Mujeres de 18 a 24 años","POB",false],
+  [39,"P_18A24_M","Hombres de 18 a 24 años","POB",false],
+  [40,"P_15A49_F","Mujeres de 15 a 49 años","POB",false],
+  [41,"P_60YMAS","Población de 60 años y más","POB",false],
+  [42,"P_60YMAS_F","Mujeres de 60 años y más","POB",false],
+  [43,"P_60YMAS_M","Hombres de 60 años y más","POB",false],
+  [44,"REL_H_M","Relación hombres-mujeres (hombres por cada 100 mujeres)","POB",false],
+  [45,"POB0_14","Población de 0 a 14 años","POB",false],
+  [46,"POB15_64","Población de 15 a 64 años","POB",false],
+  [47,"POB65_MAS","Población de 65 años y más","POB",false],
+  // ── FECUNDIDAD ───────────────────────────────────────────────────────
+  [48,"PROM_HNV","Promedio de hijas e hijos nacidos vivos (mujeres 12-130 años)","FEC",false],
+  // ── MIGRACIÓN ────────────────────────────────────────────────────────
+  [49,"PNACENT","Población nacida en la misma entidad federativa","MIG",false],
+  [50,"PNACENT_F","Mujeres nacidas en la misma entidad","MIG",false],
+  [51,"PNACENT_M","Hombres nacidos en la misma entidad","MIG",false],
+  [52,"PNACOE","Población nacida en otra entidad federativa","MIG",false],
+  [53,"PNACOE_F","Mujeres nacidas en otra entidad","MIG",false],
+  [54,"PNACOE_M","Hombres nacidos en otra entidad","MIG",false],
+  [55,"PRES2015","Población de 5+ años residente en la misma entidad en marzo 2015","MIG",false],
+  [56,"PRES2015_F","Mujeres de 5+ años residentes en la misma entidad en 2015","MIG",false],
+  [57,"PRES2015_M","Hombres de 5+ años residentes en la misma entidad en 2015","MIG",false],
+  [58,"PRESOE15","Población de 5+ años residente en otra entidad en marzo 2015","MIG",false],
+  [59,"PRESOE15_F","Mujeres de 5+ años residentes en otra entidad en 2015","MIG",false],
+  [60,"PRESOE15_M","Hombres de 5+ años residentes en otra entidad en 2015","MIG",false],
+  // ── ETNICIDAD ────────────────────────────────────────────────────────
+  [61,"P3YM_HLI","Población de 3+ años hablante de lengua indígena","ETN",false],
+  [62,"P3YM_HLI_F","Mujeres de 3+ años hablantes de lengua indígena","ETN",false],
+  [63,"P3YM_HLI_M","Hombres de 3+ años hablantes de lengua indígena","ETN",false],
+  [64,"P3HLINHE","Hablante de lengua indígena que no habla español (3+ años)","ETN",false],
+  [65,"P3HLINHE_F","Mujeres hablantes de lengua indígena sin español","ETN",false],
+  [66,"P3HLINHE_M","Hombres hablantes de lengua indígena sin español","ETN",false],
+  [67,"P3HLI_HE","Hablante de lengua indígena que también habla español (3+ años)","ETN",false],
+  [68,"P3HLI_HE_F","Mujeres hablantes de lengua indígena bilingües","ETN",false],
+  [69,"P3HLI_HE_M","Hombres hablantes de lengua indígena bilingües","ETN",false],
+  [70,"P5_HLI","Población de 5+ años hablante de lengua indígena","ETN",false],
+  [71,"P5_HLI_NHE","Hablante de lengua indígena sin español (5+ años)","ETN",false],
+  [72,"P5_HLI_HE","Hablante de lengua indígena bilingüe (5+ años)","ETN",false],
+  [73,"PHOG_IND","Población en hogares censales indígenas","ETN",false],
+  [74,"POB_AFRO","Población que se considera afromexicana o afrodescendiente","ETN",false],
+  [75,"POB_AFRO_F","Mujeres afromexicanas o afrodescendientes","ETN",false],
+  [76,"POB_AFRO_M","Hombres afromexicanos o afrodescendientes","ETN",false],
+  // ── DISCAPACIDAD ─────────────────────────────────────────────────────
+  [77,"PCON_DISC","Población con discapacidad (mucha dificultad o no puede)","DIS",false],
+  [78,"PCDISC_MOT","Discapacidad para caminar, subir o bajar","DIS",false],
+  [79,"PCDISC_VIS","Discapacidad para ver (aun usando lentes)","DIS",false],
+  [80,"PCDISC_LENG","Discapacidad para hablar o comunicarse","DIS",false],
+  [81,"PCDISC_AUD","Discapacidad para oír (aun usando aparato auditivo)","DIS",false],
+  [82,"PCDISC_MOT2","Discapacidad para vestirse, bañarse o comer","DIS",false],
+  [83,"PCDISC_MEN","Discapacidad para recordar o concentrarse","DIS",false],
+  [84,"PCON_LIMI","Población con limitación (poca dificultad)","DIS",false],
+  [85,"PCLIM_CSB","Limitación para caminar, subir o bajar","DIS",false],
+  [86,"PCLIM_VIS","Limitación para ver (aun usando lentes)","DIS",false],
+  [87,"PCLIM_HACO","Limitación para hablar o comunicarse","DIS",false],
+  [88,"PCLIM_OAUD","Limitación para oír (aun usando aparato auditivo)","DIS",false],
+  [89,"PCLIM_MOT2","Limitación para vestirse, bañarse o comer","DIS",false],
+  [90,"PCLIM_RE_CO","Limitación para recordar o concentrarse","DIS",false],
+  [91,"PCLIM_PMEN","Población con algún problema o condición mental","DIS",false],
+  [92,"PSIND_LIM","Población sin discapacidad, limitación ni condición mental","DIS",false],
+  // ── EDUCACIÓN ────────────────────────────────────────────────────────
+  [93,"P3A5_NOA","Población de 3 a 5 años que no asiste a la escuela","EDU",false],
+  [94,"P3A5_NOA_F","Mujeres de 3 a 5 años que no asisten","EDU",false],
+  [95,"P3A5_NOA_M","Hombres de 3 a 5 años que no asisten","EDU",false],
+  [96,"P6A11_NOA","Población de 6 a 11 años que no asiste a la escuela","EDU",false],
+  [97,"P6A11_NOAF","Mujeres de 6 a 11 años que no asisten","EDU",false],
+  [98,"P6A11_NOAM","Hombres de 6 a 11 años que no asisten","EDU",false],
+  [99,"P12A14NOA","Población de 12 a 14 años que no asiste","EDU",false],
+  [100,"P12A14NOAF","Mujeres de 12 a 14 años que no asisten","EDU",false],
+  [101,"P12A14NOAM","Hombres de 12 a 14 años que no asisten","EDU",false],
+  [102,"P15A17A","Población de 15 a 17 años que sí asiste a la escuela","EDU",false],
+  [103,"P15A17A_F","Mujeres de 15 a 17 años que asisten","EDU",false],
+  [104,"P15A17A_M","Hombres de 15 a 17 años que asisten","EDU",false],
+  [105,"P18A24A","Población de 18 a 24 años que asiste a la escuela","EDU",false],
+  [106,"P18A24A_F","Mujeres de 18 a 24 años que asisten","EDU",false],
+  [107,"P18A24A_M","Hombres de 18 a 24 años que asisten","EDU",false],
+  [108,"P8A14AN","Población de 8 a 14 años que no sabe leer y escribir","EDU",false],
+  [109,"P8A14AN_F","Mujeres de 8 a 14 años analfabetas","EDU",false],
+  [110,"P8A14AN_M","Hombres de 8 a 14 años analfabetos","EDU",false],
+  [111,"P15YM_AN","Población de 15+ años analfabeta","EDU",false],
+  [112,"P15YM_AN_F","Mujeres de 15+ años analfabetas","EDU",false],
+  [113,"P15YM_AN_M","Hombres de 15+ años analfabetos","EDU",false],
+  [114,"P15YM_SE","Población de 15+ años sin escolaridad","EDU",false],
+  [115,"P15YM_SE_F","Mujeres de 15+ años sin escolaridad","EDU",false],
+  [116,"P15YM_SE_M","Hombres de 15+ años sin escolaridad","EDU",false],
+  [117,"P15PRI_IN","Población de 15+ años con primaria incompleta","EDU",false],
+  [118,"P15PRI_INF","Mujeres de 15+ años con primaria incompleta","EDU",false],
+  [119,"P15PRI_INM","Hombres de 15+ años con primaria incompleta","EDU",false],
+  [120,"P15PRI_CO","Población de 15+ años con primaria completa","EDU",false],
+  [121,"P15PRI_COF","Mujeres de 15+ años con primaria completa","EDU",false],
+  [122,"P15PRI_COM","Hombres de 15+ años con primaria completa","EDU",false],
+  [123,"P15SEC_IN","Población de 15+ años con secundaria incompleta","EDU",false],
+  [124,"P15SEC_INF","Mujeres de 15+ años con secundaria incompleta","EDU",false],
+  [125,"P15SEC_INM","Hombres de 15+ años con secundaria incompleta","EDU",false],
+  [126,"P15SEC_CO","Población de 15+ años con secundaria completa","EDU",false],
+  [127,"P15SEC_COF","Mujeres de 15+ años con secundaria completa","EDU",false],
+  [128,"P15SEC_COM","Hombres de 15+ años con secundaria completa","EDU",false],
+  [129,"P18YM_PB","Población de 18+ años con educación posbásica (prepa, técnica, universidad)","EDU",false],
+  [130,"P18YM_PB_F","Mujeres de 18+ años con educación posbásica","EDU",false],
+  [131,"P18YM_PB_M","Hombres de 18+ años con educación posbásica","EDU",false],
+  [132,"GRAPROES","Grado promedio de escolaridad (15-130 años)","EDU",false],
+  [133,"GRAPROES_F","Grado promedio de escolaridad — mujeres","EDU",false],
+  [134,"GRAPROES_M","Grado promedio de escolaridad — hombres","EDU",false],
+  // ── ECONOMÍA ─────────────────────────────────────────────────────────
+  [135,"PEA","Población de 12+ años económicamente activa","ECO",false],
+  [136,"PEA_F","Mujeres de 12+ años económicamente activas","ECO",false],
+  [137,"PEA_M","Hombres de 12+ años económicamente activos","ECO",false],
+  [138,"PE_INAC","Población de 12+ años no económicamente activa","ECO",false],
+  [139,"PE_INAC_F","Mujeres de 12+ años no económicamente activas","ECO",false],
+  [140,"PE_INAC_M","Hombres de 12+ años no económicamente activos","ECO",false],
+  [141,"POCUPADA","Población de 12+ años ocupada (con trabajo)","ECO",false],
+  [142,"POCUPADA_F","Mujeres de 12+ años ocupadas","ECO",false],
+  [143,"POCUPADA_M","Hombres de 12+ años ocupados","ECO",false],
+  [144,"PDESOCUP","Población de 12+ años desocupada (sin trabajo, buscó)","ECO",false],
+  [145,"PDESOCUP_F","Mujeres de 12+ años desocupadas","ECO",false],
+  [146,"PDESOCUP_M","Hombres de 12+ años desocupados","ECO",false],
+  // ── SALUD ────────────────────────────────────────────────────────────
+  [147,"PSINDER","Población sin afiliación a servicios de salud","SAL",false],
+  [148,"PDER_SS","Población afiliada a algún servicio de salud (total)","SAL",false],
+  [149,"PDER_IMSS","Afiliada al IMSS","SAL",false],
+  [150,"PDER_ISTE","Afiliada al ISSSTE federal","SAL",false],
+  [151,"PDER_ISTEE","Afiliada a ISSSTE estatal","SAL",false],
+  [152,"PAFIL_PDOM","Afiliada a PEMEX, Defensa o Marina","SAL",false],
+  [153,"PDER_SEGP","Afiliada al Instituto de Salud para el Bienestar (INSABI)","SAL",false],
+  [154,"PDER_IMSSB","Afiliada al IMSS Bienestar","SAL",false],
+  [155,"PAFIL_IPRIV","Afiliada a institución privada de salud","SAL",false],
+  [156,"PAFIL_OTRAI","Afiliada a otra institución de salud","SAL",false],
+  // ── CONYUGAL ─────────────────────────────────────────────────────────
+  [157,"P12YM_SOLT","Población de 12+ años soltera o nunca unida","CON",false],
+  [158,"P12YM_CASA","Población de 12+ años casada o en unión libre","CON",false],
+  [159,"P12YM_SEPA","Población de 12+ años separada, divorciada o viuda","CON",false],
+  // ── RELIGIÓN ─────────────────────────────────────────────────────────
+  [160,"PCATOLICA","Población con religión católica","REL",false],
+  [161,"PRO_CRIEVA","Población protestante / cristiana evangélica","REL",false],
+  [162,"POTRAS_REL","Población con otras religiones","REL",false],
+  [163,"PSIN_RELIG","Población sin religión o sin adscripción religiosa","REL",false],
+  // ── HOGARES ──────────────────────────────────────────────────────────
+  [164,"TOTHOG","Total de hogares censales","HOG",false],
+  [165,"HOGJEF_F","Hogares con persona de referencia mujer","HOG",false],
+  [166,"HOGJEF_M","Hogares con persona de referencia hombre","HOG",false],
+  [167,"POBHOG","Población total en hogares censales","HOG",false],
+  [168,"PHOGJEF_F","Población en hogares con jefa mujer","HOG",false],
+  [169,"PHOGJEF_M","Población en hogares con jefe hombre","HOG",false],
+  // ── VIVIENDA ─────────────────────────────────────────────────────────
+  [170,"VIVTOT","Total de viviendas (habitadas + deshabitadas + uso temporal + colectivas)","VIV",false],
+  [171,"TVIVHAB","Total de viviendas habitadas (particulares + colectivas)","VIV",false],
+  [172,"TVIVPAR","Total de viviendas particulares (habitadas + deshabitadas + temporales)","VIV",false],
+  [173,"VIVPAR_HAB","Viviendas particulares habitadas","VIV",false],
+  [174,"VIVPARH_CV","Viviendas particulares habitadas con características captadas","VIV",false],
+  [175,"TVIVPARHAB","Total de viviendas particulares habitadas (incluye sin información de ocupantes)","VIV",false],
+  [176,"VIVPAR_DES","Viviendas particulares deshabitadas","VIV",false],
+  [177,"VIVPAR_UT","Viviendas particulares de uso temporal","VIV",false],
+  [178,"OCUPVIVPAR","Ocupantes en viviendas particulares habitadas","VIV",false],
+  [179,"PROM_OCUP","Promedio de ocupantes por vivienda particular habitada","VIV",false],
+  [180,"PRO_OCUP_C","Promedio de ocupantes por cuarto en vivienda particular","VIV",false],
+  [181,"VPH_PISODT","Viviendas con piso de material diferente a tierra","VIV",false],
+  [182,"VPH_PISOTI","Viviendas con piso de tierra","VIV",false],
+  [183,"VPH_1DOR","Viviendas con un dormitorio","VIV",false],
+  [184,"VPH_2YMASD","Viviendas con dos o más dormitorios","VIV",false],
+  [185,"VPH_1CUART","Viviendas con un solo cuarto","VIV",false],
+  [186,"VPH_2CUART","Viviendas con dos cuartos","VIV",false],
+  [187,"VPH_3YMASC","Viviendas con tres cuartos o más","VIV",false],
+  [188,"VPH_C_ELEC","Viviendas con energía eléctrica","VIV",false],
+  [189,"VPH_S_ELEC","Viviendas sin energía eléctrica","VIV",false],
+  [190,"VPH_AGUADV","Viviendas con agua entubada dentro del ámbito de la vivienda","VIV",false],
+  [191,"VPH_AEASP","Viviendas con agua del servicio público de agua potable","VIV",false],
+  [192,"VPH_AGUAFV","Viviendas sin agua entubada en el ámbito de la vivienda","VIV",false],
+  [193,"VPH_TINACO","Viviendas con tinaco","VIV",false],
+  [194,"VPH_CISTER","Viviendas con cisterna o aljibe","VIV",false],
+  [195,"VPH_EXCSA","Viviendas con excusado o sanitario","VIV",false],
+  [196,"VPH_LETR","Viviendas con letrina (pozo u hoyo)","VIV",false],
+  [197,"VPH_DRENAJ","Viviendas con drenaje conectado","VIV",false],
+  [198,"VPH_NODREN","Viviendas sin drenaje","VIV",false],
+  [199,"VPH_C_SERV","Viviendas con electricidad, agua de red pública y drenaje","VIV",false],
+  [200,"VPH_NDEAED","Viviendas sin electricidad, agua entubada ni drenaje","VIV",false],
+  [201,"VPH_DSADMA","Viviendas con drenaje y sanitario con admisión de agua","VIV",false],
+  [202,"VPH_NDACMM","Viviendas sin automóvil ni motocicleta","VIV",false],
+  [203,"VPH_SNBIEN","Viviendas sin ningún bien (electrodomésticos, dispositivos ni vehículos)","VIV",false],
+  [204,"VPH_REFRI","Viviendas con refrigerador","VIV",false],
+  [205,"VPH_LAVAD","Viviendas con lavadora","VIV",false],
+  [206,"VPH_HMICRO","Viviendas con horno de microondas","VIV",false],
+  [207,"VPH_AUTOM","Viviendas con automóvil o camioneta","VIV",false],
+  [208,"VPH_MOTO","Viviendas con motocicleta o motoneta","VIV",false],
+  [209,"VPH_BICI","Viviendas con bicicleta como medio de transporte","VIV",false],
+  [210,"VPH_RADIO","Viviendas con aparato de radio","VIV",false],
+  [211,"VPH_TV","Viviendas con televisor","VIV",false],
+  [212,"VPH_PC","Viviendas con computadora, laptop o tablet","VIV",false],
+  [213,"VPH_TELEF","Viviendas con línea telefónica fija","VIV",false],
+  [214,"VPH_CEL","Viviendas con teléfono celular","VIV",false],
+  [215,"VPH_INTER","Viviendas con Internet","VIV",false],
+  [216,"VPH_STVP","Viviendas con servicio de televisión de paga (cable / satélite)","VIV",false],
+  [217,"VPH_SPMVPI","Viviendas con servicio de streaming de paga por Internet","VIV",false],
+  [218,"VPH_CVJ","Viviendas con consola de videojuegos","VIV",false],
+  [219,"VPH_SINRTV","Viviendas sin radio ni televisor","VIV",false],
+  [220,"VPH_SINLTC","Viviendas sin teléfono fijo ni celular","VIV",false],
+  [221,"VPH_SINCINT","Viviendas sin computadora ni Internet","VIV",false],
+  [222,"VPH_SINTIC","Viviendas sin ninguna tecnología de información y comunicación","VIV",false],
+];
+
+let catActiva = "TODAS";
+
+function buildFilters(){
+  const cats = ["TODAS",...Object.keys(CATS)];
+  const wrap = document.getElementById("filtros");
+  cats.forEach(c=>{
+    const b = document.createElement("button");
+    b.className = "cf" + (c==="TODAS"?" active":"");
+    b.textContent = c==="TODAS"?"Todas":CATS[c]||c;
+    b.onclick=()=>{ catActiva=c; wrap.querySelectorAll(".cf").forEach(x=>x.classList.remove("active")); b.classList.add("active"); filtrar(); };
+    wrap.appendChild(b);
+  });
+}
+
+function filtrar(){
+  const q = document.getElementById("buscar").value.toLowerCase();
+  const tbody = document.getElementById("tabla-body");
+  let shown = 0;
+  tbody.querySelectorAll("tr").forEach(tr=>{
+    const code = tr.dataset.code||"";
+    const desc = tr.dataset.desc||"";
+    const cat  = tr.dataset.cat||"";
+    const matchCat = catActiva==="TODAS"||cat===catActiva;
+    const matchQ   = !q||(code.toLowerCase().includes(q)||desc.toLowerCase().includes(q)||CATS[cat]?.toLowerCase().includes(q));
+    const show = matchCat && matchQ;
+    tr.style.display = show?"":"none";
+    if(show) shown++;
+  });
+  document.getElementById("conteo").textContent = shown+" variable"+(shown!==1?"s":"");
+  document.getElementById("no-results").style.display = shown===0?"block":"none";
+}
+
+function render(){
+  const tbody = document.getElementById("tabla-body");
+  DATA.forEach(([num,code,desc,cat,tya])=>{
+    const tr = document.createElement("tr");
+    if(tya) tr.classList.add("tya-row");
+    tr.dataset.code = code;
+    tr.dataset.desc = desc;
+    tr.dataset.cat  = cat;
+    tr.innerHTML = `
+      <td class="num">${num}</td>
+      <td class="code">${code}</td>
+      <td class="desc">${desc}</td>
+      <td class="cat-cell"><span class="cat-badge cat-${cat}">${CATS[cat]||cat}</span></td>
+      <td>${tya?'<span class="tya-badge">TYA</span>':'<span class="inegi-badge">INEGI</span>'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.getElementById("conteo").textContent = DATA.length+" variables";
+}
+
+buildFilters();
+render();
+</script>
+</body>
+</html>
